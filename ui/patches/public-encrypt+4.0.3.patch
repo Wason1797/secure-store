@@ -1,0 +1,55 @@
+diff --git a/node_modules/public-encrypt/mgf.js b/node_modules/public-encrypt/mgf.js
+index b966f31..5af565a 100644
+--- a/node_modules/public-encrypt/mgf.js
++++ b/node_modules/public-encrypt/mgf.js
+@@ -1,13 +1,13 @@
+ var createHash = require('create-hash')
+ var Buffer = require('safe-buffer').Buffer
+ 
+-module.exports = function (seed, len) {
++module.exports = function (seed, len, oaepHash) {
+   var t = Buffer.alloc(0)
+   var i = 0
+   var c
+   while (t.length < len) {
+     c = i2ops(i++)
+-    t = Buffer.concat([t, createHash('sha1').update(seed).update(c).digest()])
++    t = Buffer.concat([t, createHash(oaepHash).update(seed).update(c).digest()])
+   }
+   return t.slice(0, len)
+ }
+diff --git a/node_modules/public-encrypt/privateDecrypt.js b/node_modules/public-encrypt/privateDecrypt.js
+index 8fc6dfe..1a16d53 100644
+--- a/node_modules/public-encrypt/privateDecrypt.js
++++ b/node_modules/public-encrypt/privateDecrypt.js
+@@ -31,7 +31,7 @@ module.exports = function privateDecrypt (privateKey, enc, reverse) {
+   var zBuffer = Buffer.alloc(k - msg.length)
+   msg = Buffer.concat([zBuffer, msg], k)
+   if (padding === 4) {
+-    return oaep(key, msg)
++    return oaep(key, msg, privateKey.oaepHash)
+   } else if (padding === 1) {
+     return pkcs1(key, msg, reverse)
+   } else if (padding === 3) {
+@@ -41,17 +41,17 @@ module.exports = function privateDecrypt (privateKey, enc, reverse) {
+   }
+ }
+ 
+-function oaep (key, msg) {
++function oaep (key, msg, oaepHash) {
+   var k = key.modulus.byteLength()
+-  var iHash = createHash('sha1').update(Buffer.alloc(0)).digest()
++  var iHash = createHash(oaepHash).update(Buffer.alloc(0)).digest()
+   var hLen = iHash.length
+   if (msg[0] !== 0) {
+     throw new Error('decryption error')
+   }
+   var maskedSeed = msg.slice(1, hLen + 1)
+   var maskedDb = msg.slice(hLen + 1)
+-  var seed = xor(maskedSeed, mgf(maskedDb, hLen))
+-  var db = xor(maskedDb, mgf(seed, k - hLen - 1))
++  var seed = xor(maskedSeed, mgf(maskedDb, hLen, oaepHash))
++  var db = xor(maskedDb, mgf(seed, k - hLen - 1, oaepHash))
+   if (compare(iHash, db.slice(0, hLen))) {
+     throw new Error('decryption error')
+   }
