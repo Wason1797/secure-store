@@ -17,7 +17,7 @@ const LoadingSection = () => {
       }}
     >
       <Grid item xs={3}>
-        <CircularProgress size="25vh" thickness={2.5}/>
+        <CircularProgress size="25vh" thickness={2.5} />
       </Grid>
     </Grid>
   );
