@@ -27,7 +27,8 @@ const getActiveUserSession = async () => {
 
 
 const didUserActivateSession = async () => {
-    if (sessionStorage.getItem('user')) return true;
+    const sessionUser = sessionStorage.getItem('user');
+    if (sessionUser && sessionUser.exp < new Date().getTime()) return true;
     const user = await getActiveUserSession();
     if (user) {
         sessionStorage.setItem('user', user);
