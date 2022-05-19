@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, LinearProgress, Typography, Button, Grid, withStyles, IconButton } from "@material-ui/core";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import { withStyles } from "@material-ui/core";
 import IconMapping from "../mappings/iconMappings";
 
 const BorderLinearProgress = withStyles((theme) => ({
