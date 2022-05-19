@@ -13,3 +13,8 @@ async def get_users(user: Optional[dict] = Depends(get_user)):
     users = tuple(LocalStorage.get_storage().get_data().keys())
 
     return {'users': users}
+
+
+@router.get('/session/active')
+async def get_active_session_user(user: Optional[dict] = Depends(get_user)):
+    return user
