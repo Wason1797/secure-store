@@ -4,7 +4,6 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
 import IconMapping from "../components/mappings/iconMappings";
 import EnvManager from "../config/envManager";
 import { didUserActivateSession } from "../services/api/users";
@@ -29,7 +28,6 @@ const Login = (props) => {
 
   return (
     <ThemeProvider theme={mdTheme}>
-      <CssBaseline />
       {isLoading ? (
         <LoadingSection />
       ) : (
