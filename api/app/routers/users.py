@@ -17,4 +17,9 @@ async def get_users(user: Optional[dict] = Depends(get_user)):
 
 @router.get('/session/active')
 async def get_active_session_user(user: Optional[dict] = Depends(get_user)):
-    return user
+    return {
+        'name': user.get('name'),
+        'exp': user.get('exp'),
+        'email': user.get('email'),
+        'picture': user.get('picture'),
+    }
