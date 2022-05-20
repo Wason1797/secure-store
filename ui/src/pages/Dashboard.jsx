@@ -17,6 +17,7 @@ import { getSecretsSharedWithMe, shareSecrets } from "../services/api/secrets";
 import { getUsers, didUserActivateSession } from "../services/api/users";
 import { logoutUserSession } from "../services/api/auth";
 import LoadingSection from "../components/sections/LoadingSection";
+import { getThemeProps } from "@mui/system";
 
 const drawerWidth = 240;
 
@@ -39,6 +40,7 @@ const Dashboard = () => {
   const [users, setUsers] = React.useState([]);
   const [secrets, setSecrets] = React.useState([]);
   const [isLoading, setLoading] = React.useState(true);
+  const [activeUser, setActiveUser] = React.useState(null);
   const [privateKey, setPrivateKey] = React.useState(null);
   const [decryptedSecrets, setDecryptedSecrets] = React.useState([]);
   const [secretsReadyToShare, setSecretsReadyToShare] = React.useState([]);
@@ -58,11 +60,12 @@ const Dashboard = () => {
   ];
 
   React.useEffect(() => {
-    didUserActivateSession().then((isSessionActive) => {
-      if (!isSessionActive) {
+    didUserActivateSession().then((activeUser) => {
+      if (!activeUser) {
         navigate("/login");
         return;
       }
+
       getSecretsSharedWithMe().then((secrets) => {
         setSecrets(secrets);
       });
@@ -70,6 +73,7 @@ const Dashboard = () => {
       getUsers().then((users) => {
         setUsers(users);
       });
+      setActiveUser(activeUser);
       setLoading(false);
     });
   }, [navigate]);
@@ -101,6 +105,7 @@ const Dashboard = () => {
             drawerMenuItems={drawerMenuItems}
             drawerWidth={drawerWidth}
             tooltipMenuItems={tooltipMenuItems}
+            avatarImgSrc={activeUser.picture}
           />
           <Box
             component="main"

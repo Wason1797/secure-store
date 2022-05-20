@@ -32,9 +32,9 @@ const didUserActivateSession = async () => {
     const user = await getActiveUserSession();
     if (user) {
         sessionStorage.setItem('user', user);
-        return true;
+        return user;
     }
-    return false;
+    return null;
 };
 
 

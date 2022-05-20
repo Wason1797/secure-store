@@ -62,13 +62,13 @@ const AppBar = (props) => {
             </Badge>
           </IconButton>
         )}
-        {(props.avatarSrc || props.avatarName) && (
+        {(props.avatarImgSrc || props.avatarName) && (
           <TooltipMenu
             menuId="tooltip-menu"
             items={props.tooltipMenuItems|| []}
             tooltipTitle="Account Settings"
           >
-            <Avatar src={props.avatarSrc || ""}>{props.avatarName}</Avatar>
+            <Avatar src={props.avatarImgSrc || ""}>{props.avatarName}</Avatar>
           </TooltipMenu>
         )}
       </Toolbar>

@@ -17,7 +17,8 @@ const AppBarDrawerCombo = (props) => {
         toggleDrawer={toggleDrawer}
         drawerWidth={props.drawerWidth}
         tooltipMenuItems={props.tooltipMenuItems}
-        avatarName="WB"
+        avatarName={props.avatarName}
+        avatarImgSrc={props.avatarImgSrc}
       />
       <Drawer
         variant="permanent"
