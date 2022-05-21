@@ -1,6 +1,7 @@
+from pathlib import Path
+
 import aioboto3
 from app.config.env_manager import EnvManager
-from pathlib import Path
 
 
 class S3Manager:
@@ -8,10 +9,15 @@ class S3Manager:
     session = aioboto3.Session(aws_access_key_id=EnvManager.AWS_ACCESS_KEY_ID,
                                aws_secret_access_key=EnvManager.AWS_SECRET_ACCESS_KEY)
 
+    aws_endpoint = EnvManager.AWS_ENDPOINT
+    s3_bucket = EnvManager.S3_BUCKET_NAME
+    local_temp_folder = EnvManager.TEMP_FOLDER
+
     @classmethod
-    async def download_object(cls, bucket_name: str, path: str, file_name: str, local_path: str = EnvManager.TEMP_FOLDER, chunk_size: int = 69 * 1024):
+    async def download_object(cls, path: str, file_name: str, bucket_name: str = s3_bucket,
+                              local_path: str = local_temp_folder, chunk_size: int = 69 * 1024):
         local_filename = f'{local_path}/{file_name}'
-        async with cls.session.client('s3') as s3:
+        async with cls.session.client('s3', endpoint_url=cls.aws_endpoint) as s3:
             s3object = await s3.get_object(Bucket=bucket_name, Key=f'{path}/{file_name}')
 
             async with s3object['Body'] as stream:
@@ -23,21 +29,21 @@ class S3Manager:
         return local_filename
 
     @classmethod
-    async def upload_object(cls, bucket_name: str, up_path: str, file_name: str, up_filename: str = '', local_path: str = EnvManager.TEMP_FOLDER):
+    async def upload_object(cls, up_path: str, file_name: str, bucket_name: str = s3_bucket, up_filename: str = '', local_path: str = local_temp_folder):
         up_filename = up_filename or file_name
-        async with cls.session.client('s3') as s3:
+        async with cls.session.client('s3', endpoint_url=cls.aws_endpoint) as s3:
             with Path(f'{local_path}/{file_name}').open('rb') as up_file:
                 await s3.upload_fileobj(up_file, bucket_name, f'{up_path}/{up_filename}')
 
         return f's3://{bucket_name}/{up_path}/{up_filename}'
 
     @classmethod
-    async def download_from_folder(cls, bucket_name: str, folder_path: str, file_types: list, local_path: str = EnvManager.TEMP_FOLDER):
+    async def download_from_folder(cls, folder_path: str, file_types: list, bucket_name: str = s3_bucket, local_path: str = local_temp_folder):
         def filter_file_types(s3_object, types: set):
             return s3_object.key.split('.')[-1] in types
 
         file_names = []
-        async with cls.session.resource('s3') as s3:
+        async with cls.session.resource('s3', endpoint_url=cls.aws_endpoint) as s3:
             bucket = await s3.Bucket(bucket_name)
             async for item in bucket.objects.filter(Prefix=f'{folder_path}/'):
                 if filter_file_types(item, set(file_types)):
