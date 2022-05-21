@@ -3,14 +3,13 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import IconMapping from "../components/mappings/iconMappings";
 import EnvManager from "../config/envManager";
 import { didUserActivateSession } from "../services/api/users";
 import LoadingSection from "../components/sections/LoadingSection";
 import { useNavigate } from "react-router-dom";
 
-const mdTheme = createTheme();
 
 const loginUrl = `${EnvManager.BACKEND_URL}/auth/login`;
 
@@ -27,7 +26,7 @@ const Login = (props) => {
   }, [navigate]);
 
   return (
-    <ThemeProvider theme={mdTheme}>
+    <ThemeProvider theme={props.mdTheme}>
       {isLoading ? (
         <LoadingSection />
       ) : (
