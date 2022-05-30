@@ -1,11 +1,16 @@
 import React from "react";
-import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
+
 import { withStyles } from "@material-ui/core";
+
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import AlertTitle from "@mui/material/AlertTitle";
+import LinearProgress from "@mui/material/LinearProgress";
+
 import IconMapping from "../mappings/iconMappings";
 
 const BorderLinearProgress = withStyles((theme) => ({
@@ -24,6 +29,14 @@ const BorderLinearProgress = withStyles((theme) => ({
 
 const FileUpload = (props) => {
   const FileIcon = IconMapping[props.customIcon || "UploadFileIcon"];
+
+  const [progress, setProgress] = React.useState(0);
+  const [uploadResult, setUploadResult] = React.useState(null);
+
+  const trackProgress = (event) => {
+    setProgress(Math.round((100 * event.loaded) / event.total));
+  };
+
   return (
     <Grid container direction="column" spacing={0}>
       <Grid container item spacing={2} alignItems="center">
@@ -60,7 +73,15 @@ const FileUpload = (props) => {
               variant="contained"
               component="span"
               disabled={!props.selectedFile}
-              onClick={props.onSecondaryAction || (() => {})}
+              onClick={() =>
+                props.onSecondaryAction(trackProgress).then((result) => {
+                  setProgress(0);
+                  if (result) {
+                    setUploadResult(result);
+                    setTimeout(() => setUploadResult(null), 5000);
+                  }
+                }) || (() => {})
+              }
             >
               {props.uploadButtonLabel}
             </Button>
@@ -69,13 +90,13 @@ const FileUpload = (props) => {
       </Grid>
       <Grid container item spacing={2} alignItems="center">
         <Grid item xs={9}>
-          {props.selectedFile && props.reportsProgress && (
+          {(props.selectedFile && props.reportsProgress) && (
             <Box display="flex" alignItems="center">
               <Box>
-                <BorderLinearProgress variant="determinate" value={props.progress} />
+                <BorderLinearProgress variant="determinate" value={progress} />
               </Box>
               <Box minWidth={35}>
-                <Typography variant="body2" color="textSecondary">{`${props.progress}%`}</Typography>
+                <Typography variant="body2" color="textSecondary">{`${progress}%`}</Typography>
               </Box>
             </Box>
           )}
@@ -90,6 +111,12 @@ const FileUpload = (props) => {
           </Typography>
         </Grid>
       </Grid>
+      {uploadResult && (
+        <Alert severity="info">
+          <AlertTitle>Info</AlertTitle>
+          File upload — <strong>=Ok!</strong>
+        </Alert>
+      )}
     </Grid>
   );
 };
