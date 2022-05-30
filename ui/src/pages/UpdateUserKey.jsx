@@ -5,15 +5,17 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import { ThemeProvider } from "@mui/material/styles";
 
+import FileUpload from "../components/controls/FileUpload";
 import LoadingSection from "../components/sections/LoadingSection";
 import SecureStorePageLayout from "../components/layout/SecureStorePageLayout";
 
 import { didUserActivateSession } from "../services/api/users";
-
+import { uploadPublicKey } from "../services/api/publicKey";
 
 const UpdateUserKey = (props) => {
   const [isLoading, setLoading] = React.useState(true);
   const [activeUser, setActiveUser] = React.useState(null);
+  const [publicKeyFile, setPublicKeyFile] = React.useState(null);
 
   const navigate = useNavigate();
 
@@ -35,38 +37,28 @@ const UpdateUserKey = (props) => {
         <LoadingSection />
       ) : (
         <SecureStorePageLayout avatarImgSrc={activeUser.picture}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={5} lg={4}>
+          <Grid container alignItems="center">
+            <Grid item xs={12} alignContent="center">
               <Paper
                 sx={{
-                  p: 2,
+                  p: 4,
                   display: "flex",
                   flexDirection: "column",
-                  height: 380,
+                  height: "75vh",
+                  width: "100%",
                 }}
               >
+                <FileUpload
+                  selectFile={(e) => {
+                    setPublicKeyFile(e.target?.files[0]);
+                  }}
+                  selectedFile={publicKeyFile}
+                  selectFileLabel="Select a new public key file"
+                  uploadButtonLabel="Upload new public Key"
+                  onSecondaryAction={(onUploadProgress) => uploadPublicKey(publicKeyFile, onUploadProgress, () => {setPublicKeyFile(null)})}
+                  reportsProgress
+                />
               </Paper>
-            </Grid>
-            <Grid item xs={12} md={7} lg={8}>
-              <Paper
-                sx={{
-                  p: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  height: 380,
-                }}
-              >
-              </Paper>
-            </Grid>
-            <Grid container spacing={0.5} item xs={12} direction="column">
-              <Grid item>
-                <Paper sx={{ p: 2, display: "flex", flexDirection: "column", minHeight: 200 }}>
-                </Paper>
-              </Grid>
-              <Grid item>
-                <Paper sx={{ p: 2, display: "flex" }}>
-                </Paper>
-              </Grid>
             </Grid>
           </Grid>
         </SecureStorePageLayout>
