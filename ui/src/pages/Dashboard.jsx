@@ -45,11 +45,10 @@ const Dashboard = (props) => {
     });
   }, [navigate]);
 
-  const decryptLocalyWithPrivateKeyFile = () => {
-    decryptSecretsWithPrivateKeyFile(privateKey, secrets).then((newSecrets) => {
-      setDecryptedSecrets(newSecrets);
-      setPrivateKey(null);
-    });
+  const decryptLocalyWithPrivateKeyFile = async (onProgress) => {
+    const newSecrets = await decryptSecretsWithPrivateKeyFile(privateKey, secrets);
+    setDecryptedSecrets(newSecrets);
+    setPrivateKey(null);
   };
 
   const addSecretToSend = (e, secretName, secretValue, recipient) => {
