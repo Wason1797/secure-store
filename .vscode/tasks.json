@@ -1,0 +1,135 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run API",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "OAUTH_CONFIG_URL": "",
+                    "GOOGLE_CLIENT_ID": "",
+                    "GOOGLE_CLIENT_SECRET": "",
+                    "SESSION_SECRET": "",
+                    "SECURE_STORE_UI_URL": "",
+                    "AWS_ACCESS_KEY_ID": "",
+                    "AWS_SECRET_ACCESS_KEY": "",
+                    "AWS_DYNAMODB_REGION": "",
+                    "S3_BUCKET_NAME": ""
+                },
+            },
+            "windows": {
+                "command": [
+                    "${workspaceFolder}\\api\\venv\\Scripts\\activate",
+                    "&& cd api && python runner.py"
+                ],
+                "options": {
+                    "env": {
+                        "OAUTH_CONFIG_URL": "",
+                        "GOOGLE_CLIENT_ID": "",
+                        "GOOGLE_CLIENT_SECRET": "",
+                        "SESSION_SECRET": "",
+                        "SECURE_STORE_UI_URL": "",
+                        "AWS_ENDPOINT": "",
+                        "AWS_ACCESS_KEY_ID": "",
+                        "AWS_SECRET_ACCESS_KEY": "",
+                        "AWS_DYNAMODB_REGION": "",
+                        "S3_BUCKET_NAME": ""
+                    }
+                }
+            },
+            "command": [
+                "source ${workspaceFolder}/api/venv/bin/activate",
+                "&& cd api && python runner.py"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "group": "Runners"
+            }
+        },
+        {
+            "label": "Run UI",
+            "type": "shell",
+            "options": {
+                "env": {}
+            },
+            "windows": {
+                "command": [
+                    "cd ui",
+                    "&& npm start"
+                ]
+            },
+            "command": [
+                "cd ui",
+                "&& npm start"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "Runners"
+            },
+        },
+        {
+            "label": "Run",
+            "dependsOn": [
+                "Run UI",
+                "Run API"
+            ]
+        },
+        {
+            "label": "Start Localstack",
+            "type": "shell",
+            "options": {
+                "env": {}
+            },
+            "windows": {
+                "command": [
+                    "docker run --rm -it -p 4566:4566 -p 4510-4559:4510-4559 localstack/localstack"
+                ]
+            },
+            "command": [
+                "source ${workspaceFolder}/api/.localStackVenv/bin/activate",
+                "&& cd api && localstack start -d",
+                "&& sleep 5",
+                "&& localstack status services",
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+            }
+        },
+        {
+            "label": "Create Infra",
+            "type": "shell",
+            "windows": {
+                "options": {
+                    "env": {
+                        "LOCALSTACK_HOST": ""
+                    }
+                },
+            },
+            "command": [
+                "source ${workspaceFolder}/infrastructure/.tflocal/bin/activate",
+                "&& cd infrastructure && tflocal plan && tflocal apply -var=\"PUBLIC_KEY_BUCKET_NAME=${input:bucketName}\""
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "bucketName",
+            "type": "promptString",
+            "default": "public-key-bucket",
+            "description": "Name of the bucket you want to create"
+        }
+    ]
+}
