@@ -122,6 +122,20 @@
                 "reveal": "always",
                 "panel": "dedicated"
             }
+        },
+        {
+            "label": "Patch Tasks",
+            "detail": "Applies a atch file containing sensitive secrets to the tasks file",
+            "type": "shell",
+            "command": [
+                "git apply patches/secrets.patch",
+                "&& git update-index --skip-worktree .vscode/tasks.json"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
         }
     ],
     "inputs": [
