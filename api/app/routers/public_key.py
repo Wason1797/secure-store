@@ -6,7 +6,7 @@ from app.repositories.database.managers import UserManager
 from app.repositories.filesystem.local import LocalFileManager
 from app.repositories.object_storage.s3 import S3Manager
 from app.security.validators import get_user
-from app.serializers.user import User as UserSerializer
+from app.serializers.user import UserFull as UserSerializer
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 
 router = APIRouter()
