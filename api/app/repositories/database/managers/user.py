@@ -31,3 +31,8 @@ class UserManager(BaseManager):
             last_update=current_timestamp
         ))
         return put_result.first()
+
+    @classmethod
+    async def get_all(cls, db) -> list:
+        result = await cls.scan(db)
+        return result.filter(lambda user: user.get('status') == 'ACTIVE')
