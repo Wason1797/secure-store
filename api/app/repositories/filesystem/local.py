@@ -3,18 +3,17 @@ from typing import Optional
 
 import aiofiles
 import aiofiles.os
-from app.exceptions.file import (FileTypeNotAllowedException,
-                                 MaxFileSizeException)
 from fastapi import UploadFile
 
-from ..utils import FilenameFunctions
+from ..exceptions.file import FileTypeNotAllowedException, MaxFileSizeException
+from .utils import FilenameFunctions
 
 
 class LocalFileManager:
 
     class ErrorMessages:
-        TYPE_NOT_ALLOWED: str = ''
-        MAX_SIZE_EXCEDED: str = ''
+        TYPE_NOT_ALLOWED: str = 'File type not allowed {}, allowed file types are {}'
+        MAX_SIZE_EXCEDED: str = 'Maximum size for file {} Mb exceeded'
 
     class Constants:
         MAX_FILE_SIZE: int = 2000000
@@ -25,10 +24,11 @@ class LocalFileManager:
                             max_size: int = Constants.MAX_FILE_SIZE, local_path: str = Constants.LOCAL_PATH,
                             timestamp_file: bool = True):
 
-        extension = file.filename.split('.')[-1]
+        filename_parts = file.filename.split('.')
+        extension = filename_parts[-1] if len(filename_parts) > 1 else ''
         if allowed_extensions and extension not in allowed_extensions:
             raise FileTypeNotAllowedException({
-                'message': cls.ErrorMessages.TYPE_NOT_ALLOWED.format(','.join(allowed_extensions))
+                'message': cls.ErrorMessages.TYPE_NOT_ALLOWED.format(extension, ','.join(allowed_extensions))
             })
 
         result_path = f'{local_path}/{FilenameFunctions.timestamp_filename(file.filename) if timestamp_file else file.filename}'
@@ -46,3 +46,11 @@ class LocalFileManager:
 
         await aiofiles.os.rename(temp_path, result_path)
         return result_path
+
+    @staticmethod
+    async def clean_files(file_paths: list):
+        for path in file_paths:
+            try:
+                await aiofiles.os.remove(path)
+            except Exception:
+                print(f'Unable to clean file {path}')
