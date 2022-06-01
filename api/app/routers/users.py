@@ -1,6 +1,6 @@
 from typing import Optional
 
-from app.repositories.database.local import LocalStorage
+from app.repositories.database.connectors.local import LocalStorage
 from fastapi import APIRouter, Depends
 
 from ..security.validators import get_user

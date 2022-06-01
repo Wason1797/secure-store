@@ -3,7 +3,7 @@ from typing import Optional
 import aiofiles
 import json
 import base64
-from app.repositories.database.local import LocalStorage
+from app.repositories.database.connectors.local import LocalStorage
 from app.serializers.secrets import ShareSecretsPayload
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
