@@ -6,12 +6,13 @@ from app.repositories.database.managers import UserManager
 from app.repositories.filesystem.local import LocalFileManager
 from app.repositories.object_storage.s3 import S3Manager
 from app.security.validators import get_user
+from app.serializers.user import User as UserSerializer
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 
 router = APIRouter()
 
 
-@router.post('/upload')
+@router.post('/upload', response_model=UserSerializer)
 async def upload_public_key(background_tasks: BackgroundTasks, user: Optional[dict] = Depends(get_user),
                             db=Depends(DynamoDBConnector.get_db), public_key: UploadFile = File(...)):
     public_key_local_path = await LocalFileManager.download_file(public_key, 'Public Key', allowed_extensions={'pub'})
@@ -22,6 +23,6 @@ async def upload_public_key(background_tasks: BackgroundTasks, user: Optional[di
     LocalStorage.get_storage().set_data(user.get('email'), {'public_key_path': s3_public_key_path})
 
     # Store path with user id and email
-    await UserManager.add_or_update_public_key(db, {**user, 'pub_key_path': s3_public_key_path})
+    user_result = await UserManager.add_or_update_public_key(db, {**user, 'pub_key_path': s3_public_key_path})
 
-    return {'Message': 'public_key_stored'}
+    return user_result
