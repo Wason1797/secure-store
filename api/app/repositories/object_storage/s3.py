@@ -1,7 +1,9 @@
 from pathlib import Path
+from typing import Optional
 
 import aioboto3
 from app.config.env_manager import EnvManager
+from ..filesystem.utils import FilenameFunctions
 
 
 class S3Manager:
@@ -15,8 +17,8 @@ class S3Manager:
 
     @classmethod
     async def download_object(cls, path: str, file_name: str, bucket_name: str = s3_bucket,
-                              local_path: str = local_temp_folder, chunk_size: int = 69 * 1024):
-        local_filename = f'{local_path}/{file_name}'
+                              from_temp_folder: bool = False, chunk_size: int = 69 * 1024):
+        local_filename = file_name if not from_temp_folder else f'{cls.local_temp_folder}/{file_name}'
         async with cls.session.client('s3', endpoint_url=cls.aws_endpoint) as s3:
             s3object = await s3.get_object(Bucket=bucket_name, Key=f'{path}/{file_name}')
 
@@ -29,13 +31,15 @@ class S3Manager:
         return local_filename
 
     @classmethod
-    async def upload_object(cls, up_path: str, file_name: str, bucket_name: str = s3_bucket, up_filename: str = '', local_path: str = local_temp_folder):
-        up_filename = up_filename or file_name
+    async def upload_object(cls, file_name: str, bucket_name: str = s3_bucket, up_path: Optional[str] = None,
+                            up_filename: str = '', from_temp_folder: bool = False):
+        up_filename = up_filename or (f'{up_path}/{file_name}' if up_path else file_name)
+        s3_filename = FilenameFunctions.get_filename_from_path(up_filename) if not from_temp_folder else up_filename
         async with cls.session.client('s3', endpoint_url=cls.aws_endpoint) as s3:
-            with Path(f'{local_path}/{file_name}').open('rb') as up_file:
-                await s3.upload_fileobj(up_file, bucket_name, f'{up_path}/{up_filename}')
+            with Path(file_name if not from_temp_folder else f'{cls.local_temp_folder}/{file_name}').open('rb') as up_file:
+                await s3.upload_fileobj(up_file, bucket_name, s3_filename)
 
-        return f's3://{bucket_name}/{up_path}/{up_filename}'
+        return f's3://{bucket_name}/{s3_filename}'
 
     @classmethod
     async def download_from_folder(cls, folder_path: str, file_types: list, bucket_name: str = s3_bucket, local_path: str = local_temp_folder):
