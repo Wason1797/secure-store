@@ -1,22 +1,27 @@
 from typing import Optional
 
-from app.repositories.database.local import LocalStorage
-from app.repositories.file.local import LocalFileManager
-from fastapi import APIRouter, Depends, File, UploadFile
-
-from ..security.validators import get_user
+from app.repositories.database.connectors import DynamoDBConnector
+from app.repositories.database.connectors.local import LocalStorage
+from app.repositories.database.managers import UserManager
+from app.repositories.filesystem.local import LocalFileManager
+from app.repositories.object_storage.s3 import S3Manager
+from app.security.validators import get_user
+from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 
 router = APIRouter()
 
 
 @router.post('/upload')
-async def upload_public_key(user: Optional[dict] = Depends(get_user), public_key: UploadFile = File(...)):
-    public_key_local_path = await LocalFileManager.download_file(public_key, 'Public Key')
+async def upload_public_key(background_tasks: BackgroundTasks, user: Optional[dict] = Depends(get_user),
+                            db=Depends(DynamoDBConnector.get_db), public_key: UploadFile = File(...)):
+    public_key_local_path = await LocalFileManager.download_file(public_key, 'Public Key', allowed_extensions={'pub'})
     # Upload to s3
-    s3_public_key_path = public_key_local_path
-    # Store path with user id and email
+    s3_public_key_path = await S3Manager.upload_object(public_key_local_path)
+    # Clean temp files
+    # background_tasks.add_task(LocalFileManager.clean_files, (public_key_local_path,))
     LocalStorage.get_storage().set_data(user.get('email'), {'public_key_path': s3_public_key_path})
 
-    # Clean temp files
+    # Store path with user id and email
+    await UserManager.add_or_update_public_key(db, {**user, 'pub_key_path': s3_public_key_path})
 
     return {'Message': 'public_key_stored'}
