@@ -38,7 +38,7 @@ const Dashboard = (props) => {
       });
 
       getUsers().then((users) => {
-        setUsers(users);
+        setUsers(users?.map(user => user.user_email));
       });
       setActiveUser(activeUser);
       setLoading(false);

@@ -4,10 +4,16 @@ import EnvManager from "../../config/envManager";
 const baseUrl = `${EnvManager.BACKEND_URL}/users`;
 
 const getUsers = async () => {
-  const response = await axios.get(baseUrl, {
-    withCredentials: true,
-  });
-  return response?.data.users;
+  try {
+    const response = await axios.get(baseUrl, {
+      withCredentials: true,
+    });
+    return response?.data;
+  }
+  catch (error) {
+    return null;
+  }
+
 };
 
 const getActiveUserSession = async () => {
