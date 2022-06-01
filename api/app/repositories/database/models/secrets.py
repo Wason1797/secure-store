@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 
 @dataclass
@@ -12,6 +12,9 @@ class Secret:
     secret: str
     sender_sub: str
     sender_email: str
+
+    def asdict(self) -> dict:
+        return asdict(self)
 
     class Meta:
         tablename: str = 'secrets'
