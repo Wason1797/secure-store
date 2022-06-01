@@ -1,4 +1,4 @@
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, Callable, Iterable, List, Optional, Union
 
 from aioboto3.dynamodb.table import TableResource
 from boto3.dynamodb.conditions import Key
@@ -29,8 +29,12 @@ class BaseManager:
             raw_items = self.items if self.count > 0 else []
             return raw_items if raw else [self.__model(**item) for item in raw_items]
 
+        def filter(self, predicate: Callable, raw: bool = False) -> list:
+            raw_items = self.items if self.count > 0 else []
+            return [item if raw else self.__model(**item) for item in raw_items if predicate(item)]
+
     @classmethod
-    async def query_by_key(cls, db, key: str, value: str) -> dict:
+    async def query_by_key(cls, db, key: str, value: str) -> QueryResult:
         table: TableResource = await db.Table(cls.model.Meta.tablename)
         result = await table.query(
             KeyConditionExpression=Key(key).eq(value)
@@ -38,13 +42,27 @@ class BaseManager:
         return cls.QueryResult(result, cls.model)
 
     @classmethod
-    async def put_item(cls, db, item: Union[dict, object]):
+    async def scan(cls, db) -> QueryResult:
+        table: TableResource = await db.Table(cls.model.Meta.tablename)
+        result = await table.scan()
+        items = result.get('Items', [])
+        count = result.get('Count', 0)
+
+        while result.get('LastEvaluatedKey', False):
+            result = await table.scan(ExclusiveStartKey=result.get('LastEvaluatedKey'))
+            items.extend(result.get('Items', []))
+            count += result.get('Count', 0)
+
+        return cls.QueryResult({'Items': items, 'Count': count}, cls.model)
+
+    @classmethod
+    async def put_item(cls, db, item: Union[dict, object]) -> QueryResult:
         table: TableResource = await db.Table(cls.model.Meta.tablename)
         result = await table.put_item(Item=item if isinstance(item, dict) else item.asdict())
         return cls.QueryResult(result, cls.model)
 
     @classmethod
-    async def update_item(cls, db, key: dict, condition: dict, item: Union[dict, object]):
+    async def update_item(cls, db, key: dict, condition: dict, item: Union[dict, object]) -> QueryResult:
         def keys_to_expression(keys) -> Iterable:
             return (f'{key} = :u_{key}' for key in keys)
 
