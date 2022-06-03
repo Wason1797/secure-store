@@ -1,7 +1,6 @@
 from typing import Optional
 
 from app.repositories.database.connectors import DynamoDBConnector
-from app.repositories.database.connectors.local import LocalStorage
 from app.repositories.database.managers import UserManager
 from app.repositories.filesystem.local import LocalFileManager
 from app.repositories.object_storage.s3 import S3Manager
@@ -19,8 +18,7 @@ async def upload_public_key(background_tasks: BackgroundTasks, user: Optional[di
     # Upload to s3
     s3_public_key_path = await S3Manager.upload_object(public_key_local_path)
     # Clean temp files
-    # background_tasks.add_task(LocalFileManager.clean_files, (public_key_local_path,))
-    LocalStorage.get_storage().set_data(user.get('email'), {'public_key_path': s3_public_key_path})
+    background_tasks.add_task(LocalFileManager.clean_files, (public_key_local_path,))
 
     # Store path with user id and email
     user_result = await UserManager.add_or_update_public_key(db, {**user, 'pub_key_path': s3_public_key_path})
