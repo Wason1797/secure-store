@@ -11,7 +11,7 @@ class UserManager(BaseManager):
     async def add_or_update_public_key(cls, db, user_data: dict):
         user_sub = user_data.get('sub')
         pub_key_path = user_data.get('pub_key_path')
-        result = await cls.query_by_key(db, 'user_sub', user_sub)
+        result = await cls.query_by_primary_key(db, 'user_sub', user_sub)
 
         current_timestamp = int(datetime.now().timestamp())
 
