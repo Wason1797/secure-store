@@ -1,56 +1,38 @@
-from typing import Optional
+from typing import List, Optional
 
-import aiofiles
-import json
-import base64
-from app.repositories.database.connectors.local import LocalStorage
+from app.crypto.rsa_functions import RSAEncryption
+from app.repositories.database.connectors import DynamoDBConnector
+from app.repositories.database.managers.secret import SecretManager
+from app.repositories.database.managers.user import UserManager
+from app.repositories.filesystem.local import LocalFileManager
+from app.repositories.object_storage.s3 import S3Manager
+from app.serializers.secrets import SecretBase as SecretBasicSerializer
+from app.serializers.secrets import SecretFull as SecretFullSerializer
 from app.serializers.secrets import ShareSecretsPayload
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from fastapi import APIRouter, Depends
-from uuid import uuid4
+from fastapi import APIRouter, BackgroundTasks, Depends
 
 from ..security.validators import get_user
 
 router = APIRouter()
 
 
-@router.get('/shared-with-me')
-async def shared_with_me(user: Optional[dict] = Depends(get_user)):
+@router.get('/shared-with-me', response_model=List[SecretFullSerializer])
+async def shared_with_me(user: Optional[dict] = Depends(get_user), db=Depends(DynamoDBConnector.get_db)):
     # Fetch secrets stored in database by user id
-
-    secrets = LocalStorage.get_storage().get_data()[user.get('email')].get('secrets', {})
-
-    return {'secrets': secrets}
+    secrets = await SecretManager.shared_with_me(db, user.get('sub'))
+    return secrets
 
 
-@router.post('/share')
-async def share_secrets(payload: ShareSecretsPayload, user: Optional[dict] = Depends(get_user)):
+@router.post('/share', response_model=List[SecretBasicSerializer])
+async def share_secrets(background_tasks: BackgroundTasks, payload: ShareSecretsPayload, db=Depends(DynamoDBConnector.get_db),
+                        user: Optional[dict] = Depends(get_user)):
 
-    async def encrypt(value: str, key: str):
-        async with aiofiles.open(key, "rb") as key_file:
-            key_in_memory = await key_file.read()
+    user_emails_to_share = set(payload.users)
+    current_users = await UserManager.get_all(db)
+    users_to_share = [user for user in current_users if user.user_email in user_emails_to_share]
 
-        public_key = serialization.load_pem_public_key(
-            key_in_memory,
-            backend=default_backend()
-        )
+    result, paths_to_clean = await SecretManager.share_secrets(db, user.get('email'), user.get('sub'), users_to_share, payload.secrets,
+                                                               RSAEncryption, S3Manager)
+    background_tasks.add_task(LocalFileManager.clean_files, paths_to_clean)
 
-        return base64.b64encode(public_key.encrypt(
-            value.encode('utf-8'),
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
-            )
-        )).decode('utf-8')
-
-    for user_to_share in payload.users:
-        user_to_share_data = LocalStorage.get_storage().get_data()[user_to_share]
-        key_path = user_to_share_data.get('public_key_path')
-        secrets = dict(**user_to_share_data.get('secrets', {}),
-                       **{str(uuid4()): await encrypt(json.dumps(payload.secrets), key_path)})
-        LocalStorage.get_storage().get_data()[user_to_share]['secrets'] = secrets
-
-    return LocalStorage.get_storage().get_data()[user_to_share]
+    return result
