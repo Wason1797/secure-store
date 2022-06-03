@@ -8,8 +8,7 @@ const getSecretsSharedWithMe = async () => {
     const response = await axios.get(`${baseUrl}/secrets/shared-with-me`, {
         withCredentials: true,
     });
-    const secrets = response?.data.secrets;
-    return secrets ? Object.entries(secrets).map(([key, value]) => ({ title: key, secret: value })) : [];
+    return response?.data;
 
 };
 
