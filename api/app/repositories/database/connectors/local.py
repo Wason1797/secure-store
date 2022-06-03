@@ -5,14 +5,7 @@ class LocalStorage:
     storage = None
 
     def __init__(self):
-        self.data = {
-            'wbrborich@ioet.com': {
-                'secrets': {
-                    'AWS': 'TZ4XEvOfQho0KcdIxYDsadiZ8R6i1R5bejQBvKkp8eHix7k+A7WpErNr35hcN8eYCVgFjYEd2KlG+Ru3wTo729s1YAxPIJJfpLTaSjuApHkU9qTVJZFeKx6fKEuYxkgrc7estJz/FQUZxC4xtqrS7VPE8S3mgiCMKleiD2w8FFQ='
-                },
-                'public_key_path': './temp/testKey.pub'
-            }
-        }
+        self.data = {}
 
     def get_data(self):
         return self.data
