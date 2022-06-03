@@ -103,8 +103,10 @@ const Dashboard = (props) => {
                 <Paper sx={{ p: 2, display: "flex", flexDirection: "column", minHeight: 200 }}>
                   <TableView
                     tableTitles={[
-                      { text: "Identifier", mapping: "title" },
+                      { text: "Identifier", mapping: "secret_id" },
                       { text: "Secret Value", mapping: "secret", obfuscated: !decryptedSecrets?.length },
+                      { text: "Timestamp", mapping: "created_at" },
+                      { text: "Sender Email", mapping: "sender_email" },
                     ]}
                     tableContent={decryptedSecrets?.length ? decryptedSecrets : secrets}
                     title="Secrets Shared With Me"
