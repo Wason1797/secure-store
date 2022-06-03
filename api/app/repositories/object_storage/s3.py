@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Optional
 
 import aioboto3
+import aiofiles
 from app.config.env_manager import EnvManager
 from ..filesystem.utils import FilenameFunctions
 
@@ -16,18 +17,20 @@ class S3Manager:
     local_temp_folder = EnvManager.TEMP_FOLDER
 
     @classmethod
-    async def download_object(cls, path: str, file_name: str, bucket_name: str = s3_bucket,
-                              from_temp_folder: bool = False, chunk_size: int = 69 * 1024):
-        local_filename = file_name if not from_temp_folder else f'{cls.local_temp_folder}/{file_name}'
+    async def download_object(cls, path: str, file_name: Optional[str] = None, bucket_name: str = s3_bucket,
+                              to_temp_folder: bool = False, chunk_size: int = 69 * 1024):
+        temp_filename = FilenameFunctions.timestamp_filename('temp') if not file_name else file_name
+        local_filename = temp_filename if not to_temp_folder else f'{cls.local_temp_folder}/{temp_filename}'
+        path_bucket, path_filename, path_location = cls.get_bucket_path_name_split(path)
+        object_key = path_filename if not path_location else f'{path_location}/{path_filename}'
+
         async with cls.session.client('s3', endpoint_url=cls.aws_endpoint) as s3:
-            s3object = await s3.get_object(Bucket=bucket_name, Key=f'{path}/{file_name}')
+            s3object = await s3.get_object(Bucket=bucket_name or path_bucket, Key=object_key)
 
             async with s3object['Body'] as stream:
-                data = await stream.read(chunk_size)
-                with open(local_filename, 'wb') as f:
-                    while data:
-                        f.write(data)
-                        data = await stream.read(chunk_size)
+                data = await stream.read()
+                async with aiofiles.open(local_filename, 'wb') as f:
+                    await f.write(data)
         return local_filename
 
     @classmethod
