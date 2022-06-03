@@ -15,9 +15,9 @@ const decryptWithPrivateKey = (privateKey, secret) => {
 const decryptSecretsWithPrivateKeyFile = async (privateKey, secrets) => {
     if (!privateKey || !secrets) return;
     const privateKeyArrayBuffer = await privateKey.arrayBuffer();
-    return secrets.map((secret) => ({
-        title: secret.title,
-        secret: decryptWithPrivateKey(privateKeyArrayBuffer, secret.secret),
+    return secrets.map((secretData) => ({
+        ...secretData,
+        secret: decryptWithPrivateKey(privateKeyArrayBuffer, secretData.secret),
     }));
 };
 
