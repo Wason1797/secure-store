@@ -13,7 +13,7 @@ import SecretsBreakdown from "../components/sections/SecretsBreakdown";
 import SecureStorePageLayout from "../components/layout/SecureStorePageLayout";
 
 import { getUsers, didUserActivateSession } from "../services/api/users";
-import { decryptSecretsWithPrivateKeyFile } from "../services/crypto/keyUtils";
+import { decryptSecretsWithPrivateKeyFile } from "../services/crypto/rsaFunctions";
 import { getSecretsSharedWithMe, shareSecrets } from "../services/api/secrets";
 
 const Dashboard = (props) => {
