@@ -19,3 +19,11 @@ class SecretBase(BaseModel):
 class SecretFull(SecretBase):
     recipient_sub: str
     sender_sub: str
+
+
+class KeyAgreementPayload(BaseModel):
+    public_key: str
+
+
+class KeyAgreementResponse(BaseModel):
+    server_public_key: str
