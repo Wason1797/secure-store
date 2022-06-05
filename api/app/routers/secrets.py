@@ -10,7 +10,7 @@ from app.serializers.secrets import KeyAgreementPayload, KeyAgreementResponse
 from app.serializers.secrets import SecretBase as SecretBasicSerializer
 from app.serializers.secrets import SecretFull as SecretFullSerializer
 from app.serializers.secrets import ShareSecretsPayload
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
 router = APIRouter()
 
@@ -38,6 +38,9 @@ async def share_secrets(background_tasks: BackgroundTasks, payload: ShareSecrets
 
 @router.post('/agree/key', response_model=KeyAgreementResponse)
 async def perform_key_agreement(payload: KeyAgreementPayload, db=Depends(RedisConnector.get_db), user: Optional[dict] = Depends(get_user)):
+
+    if (await CachedKeyManager.get_key_for_user(db, user.get('sub'))):
+        raise HTTPException(status_code=409, detail='There is an agreement already for this user, use the current secret or wait until expires')
 
     server_private_key, server_public_key = ECDHExchange.generate_keys()
     derived_key = ECDHExchange.derive_shared_hkdf_key(payload.public_key, server_private_key)
