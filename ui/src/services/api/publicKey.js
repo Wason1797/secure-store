@@ -7,7 +7,7 @@ const uploadPublicKey = async (publicKeyFile, onUploadProgress, done) => {
     try {
         const data = new FormData();
         data.append('public_key', publicKeyFile);
-        const response = await axios.post(`${baseUrl}/public-key/upload`, data,
+        const response = await axios.post(`${baseUrl}/public-key`, data,
             {
                 headers: {
                     "Content-Type": "multipart/form-data",
