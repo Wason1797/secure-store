@@ -18,7 +18,7 @@ const getUsers = async () => {
 
 const getActiveUserSession = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/session/active`, {
+    const response = await axios.get(`${baseUrl}/current`, {
       withCredentials: true,
     });
     return response?.data;
