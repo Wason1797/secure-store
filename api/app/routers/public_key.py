@@ -11,7 +11,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 router = APIRouter()
 
 
-@router.post('/upload', response_model=UserSerializer)
+@router.post('/', response_model=UserSerializer)
 async def upload_public_key(background_tasks: BackgroundTasks, user: Optional[dict] = Depends(get_user),
                             db=Depends(DynamoDBConnector.get_db), public_key: UploadFile = File(...)):
     public_key_local_path = await LocalFileManager.download_file(public_key, 'Public Key', allowed_extensions={'pub'})
