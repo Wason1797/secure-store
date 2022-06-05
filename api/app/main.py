@@ -3,6 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from .config.env_manager import EnvManager
+from .events.startup import on_startup
 from .routers import auth, index, public_key, secrets, users
 
 app = FastAPI(title='secure-store API')
@@ -10,7 +11,7 @@ app = FastAPI(title='secure-store API')
 # Middlewares
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[EnvManager.SECURE_STORE_UI_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,7 +28,7 @@ app.add_middleware(SessionMiddleware, secret_key=EnvManager.SESSION_SECRET, max_
 
 @app.on_event("startup")
 async def startup_event():
-    pass
+    await on_startup()
 
 # Routers
 app.include_router(
@@ -47,14 +48,14 @@ app.include_router(
 app.include_router(
     public_key.router,
     prefix='/public-key',
-    tags=["public-key"],
+    tags=['public-key'],
     # responses={},
 )
 
 app.include_router(
     secrets.router,
     prefix='/secrets',
-    tags=["secrets"],
+    tags=['secrets'],
     # responses={},
 )
 
@@ -62,6 +63,6 @@ app.include_router(
 app.include_router(
     users.router,
     prefix='/users',
-    tags=["secrets"],
+    tags=['users'],
     # responses={},
 )
