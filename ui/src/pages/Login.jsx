@@ -1,15 +1,17 @@
 import React from "react";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import { ThemeProvider } from "@mui/material/styles";
-import IconMapping from "../components/mappings/iconMappings";
-import EnvManager from "../config/envManager";
-import { didUserActivateSession } from "../services/api/users";
-import LoadingSection from "../components/sections/LoadingSection";
 import { useNavigate } from "react-router-dom";
 
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import { ThemeProvider } from "@mui/material/styles";
+
+import IconMapping from "../components/mappings/iconMappings";
+import LoadingSection from "../components/sections/LoadingSection";
+
+import EnvManager from "../config/envManager";
+import { didUserActivateSession } from "../services/api/users";
 
 const loginUrl = `${EnvManager.BACKEND_URL}/auth/login`;
 
