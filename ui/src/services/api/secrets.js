@@ -1,11 +1,11 @@
 import axios from "axios";
 import EnvManager from '../../config/envManager';
 
-const baseUrl = EnvManager.BACKEND_URL;
+const baseUrl = `${EnvManager.BACKEND_URL}/secrets`;
 
 const getSecretsSharedWithMe = async () => {
 
-    const response = await axios.get(`${baseUrl}/secrets/shared-with-me`, {
+    const response = await axios.get(`${baseUrl}/user/current`, {
         withCredentials: true,
     });
     return response?.data;
@@ -24,7 +24,7 @@ const shareSecrets = async (secretList) => {
         }
     });
 
-    const response = await axios.post(`${baseUrl}/secrets/share`,
+    const response = await axios.post(`${baseUrl}/share`,
         {
             users: Array.from(recipients),
             secrets: Object.fromEntries(secrets)
