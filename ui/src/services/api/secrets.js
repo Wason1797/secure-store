@@ -1,5 +1,6 @@
 import axios from "axios";
 import EnvManager from '../../config/envManager';
+import { deriveSharedHKDFKey, generateECDHKeys } from '../crypto/ecdhFunctions';
 
 const baseUrl = `${EnvManager.BACKEND_URL}/secrets`;
 
@@ -33,7 +34,24 @@ const shareSecrets = async (secretList) => {
     return response?.data;
 };
 
+
+const performKeyAgreement = async () => {
+
+    const clientKeyPair = await generateECDHKeys();
+
+    const response = await axios.post(`${baseUrl}/agree/key`,
+        {
+            public_key: clientKeyPair.publicKey
+        },
+        { withCredentials: true });
+
+    const serverPublicKey = response?.data?.server_public_key;
+
+    return deriveSharedHKDFKey(serverPublicKey, clientKeyPair.privateKey);
+};
+
 export {
     getSecretsSharedWithMe,
-    shareSecrets
+    shareSecrets,
+    performKeyAgreement
 };
