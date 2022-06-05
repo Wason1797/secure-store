@@ -13,6 +13,7 @@ class EnvManager:
     S3_BUCKET_NAME: str = os.environ['S3_BUCKET_NAME']
     AWS_DYNAMODB_REGION: str = os.environ['AWS_DYNAMODB_REGION']
     TEMP_FOLDER: str = os.getenv('TEMP_FOLDER', './temp')
+    MEMORY_DB_URL: str = os.environ['MEMORY_DB_URL']
 
     @classmethod
     def get(cls, key, default=None):
