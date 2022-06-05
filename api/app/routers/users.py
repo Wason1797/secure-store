@@ -17,6 +17,6 @@ async def get_users(user: Optional[dict] = Depends(get_user), db=Depends(DynamoD
     return users
 
 
-@router.get('/session/active', response_model=SessionUserSerializer)
-async def get_active_session_user(user: Optional[dict] = Depends(get_user)):
+@router.get('/current', response_model=SessionUserSerializer)
+async def get_active_user(user: Optional[dict] = Depends(get_user)):
     return SessionUserSerializer(**user)
