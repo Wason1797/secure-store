@@ -1,24 +1,22 @@
 from typing import List, Optional
 
-from app.crypto.rsa_functions import RSAEncryption
-from app.repositories.database.connectors import DynamoDBConnector
-from app.repositories.database.managers.secret import SecretManager
-from app.repositories.database.managers.user import UserManager
+from app.crypto import ECDHExchange, RSAEncryption
+from app.repositories.database.connectors import DynamoDBConnector, RedisConnector
+from app.repositories.database.managers import SecretManager, UserManager, CachedKeyManager
 from app.repositories.filesystem.local import LocalFileManager
 from app.repositories.object_storage.s3 import S3Manager
+from app.security.validators import get_user
+from app.serializers.secrets import KeyAgreementPayload, KeyAgreementResponse
 from app.serializers.secrets import SecretBase as SecretBasicSerializer
 from app.serializers.secrets import SecretFull as SecretFullSerializer
 from app.serializers.secrets import ShareSecretsPayload
 from fastapi import APIRouter, BackgroundTasks, Depends
 
-from ..security.validators import get_user
-
 router = APIRouter()
 
 
-@router.get('/shared-with-me', response_model=List[SecretFullSerializer])
-async def shared_with_me(user: Optional[dict] = Depends(get_user), db=Depends(DynamoDBConnector.get_db)):
-    # Fetch secrets stored in database by user id
+@router.get('/user/current', response_model=List[SecretFullSerializer])
+async def get_secrets_shared_with_current_user(user: Optional[dict] = Depends(get_user), db=Depends(DynamoDBConnector.get_db)):
     secrets = await SecretManager.shared_with_me(db, user.get('sub'))
     return secrets
 
@@ -36,3 +34,14 @@ async def share_secrets(background_tasks: BackgroundTasks, payload: ShareSecrets
     background_tasks.add_task(LocalFileManager.clean_files, paths_to_clean)
 
     return result
+
+
+@router.post('/agree/key', response_model=KeyAgreementResponse)
+async def perform_key_agreement(payload: KeyAgreementPayload, db=Depends(RedisConnector.get_db), user: Optional[dict] = Depends(get_user)):
+
+    server_private_key, server_public_key = ECDHExchange.generate_keys()
+    derived_key = ECDHExchange.derive_shared_hkdf_key(payload.public_key, server_private_key)
+
+    await CachedKeyManager.set_key_for_user(db, user.get('sub'), derived_key)
+
+    return KeyAgreementResponse(server_public_key=server_public_key)
