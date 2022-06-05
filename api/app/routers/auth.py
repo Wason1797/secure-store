@@ -1,8 +1,7 @@
 from app.config.env_manager import EnvManager
+from app.security.oauth import oauth_client
 from fastapi import APIRouter, Request, Response
 from starlette.responses import RedirectResponse
-
-from ..security.oauth import oauth_client
 
 router = APIRouter()
 
