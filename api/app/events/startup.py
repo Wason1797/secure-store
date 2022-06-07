@@ -3,6 +3,8 @@ from asyncio import iscoroutinefunction
 from importlib import import_module
 from typing import Callable, Dict
 
+from app.config.env_manager import EnvManager
+
 
 class StartupEvents:
 
@@ -10,12 +12,17 @@ class StartupEvents:
     def init_db_connector(connector):
         connector.init_db()
 
+    @staticmethod
+    def init_fernet_encryption(fernet):
+        fernet.init_ecryption_manager(EnvManager.SERVER_SECRET, EnvManager.SERVER_SALT)
+
 
 class StartupEventManager:
 
     dependencies: Dict[tuple, Callable] = {
         ('app.repositories.database.connectors', 'DynamoDBConnector'): StartupEvents.init_db_connector,
-        ('app.repositories.database.connectors', 'RedisConnector'): StartupEvents.init_db_connector
+        ('app.repositories.database.connectors', 'RedisConnector'): StartupEvents.init_db_connector,
+        ('app.crypto.fernet_functions', 'FernetEncryption'): StartupEvents.init_fernet_encryption
     }
 
     @staticmethod
