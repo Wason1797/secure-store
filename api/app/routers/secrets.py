@@ -1,8 +1,10 @@
 from typing import List, Optional
 
-from app.crypto import ECDHExchange, RSAEncryption
-from app.repositories.database.connectors import DynamoDBConnector, RedisConnector
-from app.repositories.database.managers import SecretManager, UserManager, CachedKeyManager
+from app.crypto import ECDHExchange, FernetEncryption, RSAEncryption
+from app.repositories.database.connectors import (DynamoDBConnector,
+                                                  RedisConnector)
+from app.repositories.database.managers import (CachedKeyManager,
+                                                SecretManager, UserManager)
 from app.repositories.filesystem.local import LocalFileManager
 from app.repositories.object_storage.s3 import S3Manager
 from app.security.validators import get_user
@@ -43,8 +45,8 @@ async def perform_key_agreement(payload: KeyAgreementPayload, db=Depends(RedisCo
         raise HTTPException(status_code=409, detail='There is an agreement already for this user, use the current secret or wait until expires')
 
     server_private_key, server_public_key = ECDHExchange.generate_keys()
-    derived_key = ECDHExchange.derive_shared_hkdf_key(payload.public_key, server_private_key)
+    derived_key = ECDHExchange.derive_shared_hkdf_key(payload.public_key, server_private_key, raw=True)
 
-    await CachedKeyManager.set_key_for_user(db, user.get('sub'), derived_key)
+    await CachedKeyManager.set_key_for_user(db, user.get('sub'), derived_key, FernetEncryption.encrypt)
 
     return KeyAgreementResponse(server_public_key=server_public_key)
