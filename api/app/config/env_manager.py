@@ -6,6 +6,8 @@ class EnvManager:
     GOOGLE_CLIENT_ID: str = os.environ['GOOGLE_CLIENT_ID']
     GOOGLE_CLIENT_SECRET: str = os.environ['GOOGLE_CLIENT_SECRET']
     SESSION_SECRET: str = os.environ['SESSION_SECRET']
+    SERVER_SECRET: str = os.environ['SERVER_SECRET']
+    SERVER_SALT: str = os.environ['SERVER_SALT']
     SECURE_STORE_UI_URL: str = os.environ['SECURE_STORE_UI_URL']
     AWS_ACCESS_KEY_ID: str = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY: str = os.getenv('AWS_SECRET_ACCESS_KEY')
