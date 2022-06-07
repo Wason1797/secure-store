@@ -1,13 +1,14 @@
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import PeopleIcon from "@mui/icons-material/People";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import LayersIcon from "@mui/icons-material/Layers";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import Logout from "@mui/icons-material/Logout";
 import Key from "@mui/icons-material/Key";
+import Logout from "@mui/icons-material/Logout";
+import GoogleIcon from "@mui/icons-material/Google";
+import PeopleIcon from "@mui/icons-material/People";
+import LayersIcon from "@mui/icons-material/Layers";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import GoogleIcon from '@mui/icons-material/Google';
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 const IconMapping = Object.freeze({
     Dashboard: DashboardIcon,
@@ -19,7 +20,8 @@ const IconMapping = Object.freeze({
     Logout: Logout,
     Key: Key,
     UploadFileIcon: UploadFileIcon,
-    Google: GoogleIcon
+    Google: GoogleIcon,
+    LockReset: LockResetIcon
 });
 
 export default IconMapping;
