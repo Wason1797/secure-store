@@ -31,6 +31,11 @@ const SecureStorePageLayout = (props) => {
       onClick: () => navigate("/dashboard"),
     },
     {
+      text: "Generate Key Pair",
+      icon: "LockReset",
+      onClick: () => navigate("/generate-user-key"),
+    },
+    {
       text: "Update Public Key",
       icon: "Key",
       onClick: () => navigate("/update-user-key"),
