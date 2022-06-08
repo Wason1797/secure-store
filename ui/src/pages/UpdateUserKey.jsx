@@ -6,6 +6,8 @@ import Paper from "@mui/material/Paper";
 import { ThemeProvider } from "@mui/material/styles";
 
 import FileUpload from "../components/controls/FileUpload";
+import AlertSection from "../components/sections/AlertSection";
+import { createAlert } from "../components/sections/AlertSection";
 import LoadingSection from "../components/sections/LoadingSection";
 import SecureStorePageLayout from "../components/layout/SecureStorePageLayout";
 
@@ -16,6 +18,7 @@ const UpdateUserKey = (props) => {
   const [isLoading, setLoading] = React.useState(true);
   const [activeUser, setActiveUser] = React.useState(null);
   const [publicKeyFile, setPublicKeyFile] = React.useState(null);
+  const [alerts, setAlerts] = React.useState([]);
 
   const navigate = useNavigate();
 
@@ -31,13 +34,21 @@ const UpdateUserKey = (props) => {
     });
   }, [navigate]);
 
+  const addAlert = (title, message, highlight, severity) => {
+    const alert = createAlert(title, message, highlight, severity);
+    setAlerts([...alerts, alert]);
+  };
+
   return (
     <ThemeProvider theme={props.mdTheme}>
       {isLoading ? (
         <LoadingSection />
       ) : (
         <SecureStorePageLayout avatarImgSrc={activeUser.picture}>
-          <Grid container alignItems="center">
+          <Grid container direction="column" spacing={1}>
+            {alerts.length ? (
+              <AlertSection alerts={alerts} onAlertTimeout={() => setAlerts([])} parentName="updateUserKey" />
+            ) : null}
             <Grid item xs={12} alignContent="center">
               <Paper
                 sx={{
@@ -55,7 +66,12 @@ const UpdateUserKey = (props) => {
                   selectedFile={publicKeyFile}
                   selectFileLabel="Select a new public key file"
                   uploadButtonLabel="Upload new public Key"
-                  onSecondaryAction={(onUploadProgress) => uploadPublicKey(publicKeyFile, onUploadProgress, () => {setPublicKeyFile(null)})}
+                  onSecondaryAction={(onUploadProgress) =>
+                    uploadPublicKey(publicKeyFile, onUploadProgress, () => {
+                      setPublicKeyFile(null);
+                    })
+                  }
+                  setAlert={addAlert}
                   reportsProgress
                 />
               </Paper>
