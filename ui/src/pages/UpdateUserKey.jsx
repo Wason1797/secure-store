@@ -71,7 +71,7 @@ const UpdateUserKey = (props) => {
                       setPublicKeyFile(null);
                     })
                   }
-                  setAlert={addAlert}
+                  setAlert={() => addAlert("File Upload", "Public Key Stored correctly", null)}
                   reportsProgress
                 />
               </Paper>
