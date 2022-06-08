@@ -4,8 +4,8 @@ import { withStyles } from "@material-ui/core";
 
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -90,7 +90,7 @@ const FileUpload = (props) => {
       </Grid>
       <Grid container item spacing={2} alignItems="center">
         <Grid item xs={9}>
-          {(props.selectedFile && props.reportsProgress) && (
+          {props.selectedFile && props.reportsProgress && progress ? (
             <Box display="flex" alignItems="center">
               <Box>
                 <BorderLinearProgress variant="determinate" value={progress} />
@@ -99,7 +99,7 @@ const FileUpload = (props) => {
                 <Typography variant="body2" color="textSecondary">{`${progress}%`}</Typography>
               </Box>
             </Box>
-          )}
+          ) : null}
         </Grid>
         <Grid item xs={3}>
           <Typography
