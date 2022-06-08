@@ -12,9 +12,9 @@ const uploadPublicKey = async (publicKeyFile, onUploadProgress, done) => {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-                withCredentials: true
+                withCredentials: true,
+                onUploadProgress
             },
-            onUploadProgress
         );
         done();
         return response?.data;
