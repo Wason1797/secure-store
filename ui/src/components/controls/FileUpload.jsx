@@ -4,11 +4,9 @@ import { withStyles } from "@material-ui/core";
 
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import AlertTitle from "@mui/material/AlertTitle";
 import LinearProgress from "@mui/material/LinearProgress";
 
 import IconMapping from "../mappings/iconMappings";
@@ -31,7 +29,6 @@ const FileUpload = (props) => {
   const FileIcon = IconMapping[props.customIcon || "UploadFileIcon"];
 
   const [progress, setProgress] = React.useState(0);
-  const [uploadResult, setUploadResult] = React.useState(null);
 
   const trackProgress = (event) => {
     setProgress(Math.round((100 * event.loaded) / event.total));
@@ -77,8 +74,7 @@ const FileUpload = (props) => {
                 props.onSecondaryAction(trackProgress).then((result) => {
                   setProgress(0);
                   if (result) {
-                    setUploadResult(result);
-                    setTimeout(() => setUploadResult(null), 5000);
+                    props?.setAlert();
                   }
                 }) || (() => {})
               }
@@ -111,12 +107,6 @@ const FileUpload = (props) => {
           </Typography>
         </Grid>
       </Grid>
-      {uploadResult && (
-        <Alert severity="info">
-          <AlertTitle>Info</AlertTitle>
-          File upload — <strong>=Ok!</strong>
-        </Alert>
-      )}
     </Grid>
   );
 };
