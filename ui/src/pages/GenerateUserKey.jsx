@@ -5,17 +5,26 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import LoadingButton from "@mui/lab/LoadingButton";
 import Autocomplete from "@mui/material/Autocomplete";
 import { ThemeProvider } from "@mui/material/styles";
 
 import LoadingSection from "../components/sections/LoadingSection";
 import SecureStorePageLayout from "../components/layout/SecureStorePageLayout";
 
+import { uploadPublicKey } from "../services/api/publicKey";
 import { didUserActivateSession } from "../services/api/users";
+import { generateRSAKeyPair } from "../services/crypto/rsaFunctions";
 
 const GenerateUserKey = (props) => {
   const [isLoading, setLoading] = React.useState(true);
   const [activeUser, setActiveUser] = React.useState(null);
+  const [keyLength, setKeyLength] = React.useState(1024);
+  const [rsaPublicKey, setRsaPublicKey] = React.useState("");
+  const [rsaPublicKeyDownloadUrl, setRsaPublicKeyDonwloadUrl] = React.useState(null);
+  const [rsaPrivateKey, setRsaPrivateKey] = React.useState("");
+  const [rsaPrivateKeyDonwloadUrl, setRsaPrivateKeyDonwloadUrl] = React.useState(null);
+  const [isKeyLoading, setIsKeyLoading] = React.useState(false);
 
   const navigate = useNavigate();
 
@@ -31,6 +40,23 @@ const GenerateUserKey = (props) => {
     });
   }, [navigate]);
 
+  const pubKeyDownloadElementRef = React.useRef();
+  const privKeyDownloadElementRef = React.useRef();
+
+  React.useEffect(() => {
+    if (!rsaPublicKeyDownloadUrl) return;
+    pubKeyDownloadElementRef.current.click();
+    URL.revokeObjectURL(rsaPublicKeyDownloadUrl);
+    setRsaPublicKeyDonwloadUrl(null);
+  }, [rsaPublicKeyDownloadUrl]);
+
+  React.useEffect(() => {
+    if (!rsaPrivateKeyDonwloadUrl) return;
+    privKeyDownloadElementRef.current.click();
+    URL.revokeObjectURL(rsaPrivateKeyDonwloadUrl);
+    setRsaPrivateKeyDonwloadUrl(null);
+  }, [rsaPrivateKeyDonwloadUrl]);
+
   return (
     <ThemeProvider theme={props.mdTheme}>
       {isLoading ? (
@@ -44,6 +70,7 @@ const GenerateUserKey = (props) => {
                 display: "flex",
                 flexDirection: "column",
                 height: "75vh",
+                maxHeight: "100vh",
                 width: "100%",
               }}
             >
@@ -57,27 +84,67 @@ const GenerateUserKey = (props) => {
                       options={["1024", "2048", "4096"]}
                       sx={{ minWidth: 200 }}
                       renderInput={(params) => <TextField {...params} label="Key Length" contentEditable={false} />}
+                      onChange={(_e, value) => setKeyLength(parseInt(value, 10))}
                     />
                   </Grid>
                   <Grid item>
-                    <Button
+                    <LoadingButton
+                      disabled={!keyLength || (rsaPublicKey !== "" && rsaPrivateKey !== "")}
                       className="btn-upload"
+                      loading={isKeyLoading}
                       color="primary"
                       variant="contained"
                       component="span"
-                      onClick={() => {}}
+                      onClick={() => {
+                        setIsKeyLoading(true);
+                        generateRSAKeyPair(keyLength).then((rsaKeyPair) => {
+                          setRsaPrivateKey(rsaKeyPair.rsaPrivateKey);
+                          setRsaPublicKey(rsaKeyPair.rsaPublicKey);
+                          setIsKeyLoading(false);
+                        });
+                      }}
                     >
                       Generate Key Pair
-                    </Button>
+                    </LoadingButton>
+                    <a
+                      style={{ display: "none" }}
+                      download="privateKey.p8"
+                      href={rsaPrivateKeyDonwloadUrl}
+                      ref={privKeyDownloadElementRef}
+                    >
+                      download
+                    </a>
+                    <a
+                      style={{ display: "none" }}
+                      className="hidden"
+                      download="publicKey.pub"
+                      href={rsaPublicKeyDownloadUrl}
+                      ref={pubKeyDownloadElementRef}
+                    >
+                      download
+                    </a>
                   </Grid>
                   <Grid item>
                     <Button
                       className="btn-upload"
+                      disabled={rsaPublicKey === "" && rsaPrivateKey === ""}
                       color="primary"
                       variant="contained"
                       component="span"
-                      disabled
-                      onClick={() => {}}
+                      onClick={() => {
+                        const pubKeyBlob = new Blob([rsaPublicKey]);
+                        const privKeyBlob = new Blob([rsaPrivateKey]);
+                        uploadPublicKey(
+                          new File([pubKeyBlob], "publicKey.pub"),
+                          () => {},
+                          () => {}
+                        ).then((uploadResult) => {
+                          setRsaPublicKeyDonwloadUrl(URL.createObjectURL(pubKeyBlob));
+                          setRsaPrivateKeyDonwloadUrl(URL.createObjectURL(privKeyBlob));
+                          setRsaPrivateKey("");
+                          setRsaPublicKey("");
+                        });
+                      }}
                     >
                       Submit and Download
                     </Button>
@@ -91,8 +158,11 @@ const GenerateUserKey = (props) => {
                       variant="outlined"
                       multiline
                       minRows={15}
-                      maxRows={18}
+                      maxRows={15}
                       fullWidth
+                      value={rsaPrivateKey}
+                      InputLabelProps={{ shrink: true }}
+                      inputProps={{ readOnly: true }}
                     />
                   </Grid>
                   <Grid item xs={6}>
@@ -102,8 +172,11 @@ const GenerateUserKey = (props) => {
                       variant="outlined"
                       multiline
                       minRows={15}
-                      maxRows={18}
+                      maxRows={15}
                       fullWidth
+                      value={rsaPublicKey}
+                      InputLabelProps={{ shrink: true }}
+                      inputProps={{ readOnly: true }}
                     />
                   </Grid>
                 </Grid>
