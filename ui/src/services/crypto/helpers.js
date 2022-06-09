@@ -7,7 +7,7 @@ const bufferToHexString = buffer => Array.from(new Uint8Array(buffer))
 
 
 const hexStringToArray = str => {
-    if (!str)  return new Uint8Array();
+    if (!str) return new Uint8Array();
 
     const arr = [];
     for (let i = 0, len = str.length; i < len; i += 2) {
