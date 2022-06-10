@@ -8,7 +8,9 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 const IconMapping = Object.freeze({
     Dashboard: DashboardIcon,
@@ -21,7 +23,9 @@ const IconMapping = Object.freeze({
     Key: Key,
     UploadFileIcon: UploadFileIcon,
     Google: GoogleIcon,
-    LockReset: LockResetIcon
+    LockReset: LockResetIcon,
+    Visibility: VisibilityIcon,
+    VisibilityOff: VisibilityOffIcon
 });
 
 export default IconMapping;
