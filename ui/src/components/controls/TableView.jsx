@@ -1,11 +1,33 @@
 import * as React from "react";
+
+import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Table from "@mui/material/Table";
+import Toolbar from "@mui/material/Toolbar";
+import TableRow from "@mui/material/TableRow";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
+import IconButton from "@mui/material/IconButton";
+
 import Title from "../text/Title";
+import IconMapping from "../mappings/iconMappings";
+
+const toIconButton = ({ index, icon, ariaLabel, disabled, onClick, size = "large", color = "inherit" }) => {
+  const Icon = IconMapping[icon];
+  return (
+    <IconButton
+      size={size}
+      aria-label={ariaLabel}
+      color={color}
+      onClick={onClick}
+      key={`tableViewIcon-${index}`}
+      disabled={disabled}
+    >
+      <Icon />
+    </IconButton>
+  );
+};
 
 const TableView = (props) => {
   const titleRow = props?.tableTitles.map((title, index) => (
@@ -33,7 +55,13 @@ const TableView = (props) => {
 
   return (
     <React.Fragment>
-      <Title>{props.title}</Title>
+      <Toolbar disableGutters variant="dense">
+        <Title>{props.title}</Title>
+        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ display: "flex" }}>
+          {props?.toolbarButtons?.map((button, index) => toIconButton({ index, ...button }))}
+        </Box>
+      </Toolbar>
       <Table size="small">
         <TableHead>
           <TableRow>{titleRow}</TableRow>
