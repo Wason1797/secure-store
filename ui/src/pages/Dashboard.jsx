@@ -13,8 +13,8 @@ import SecretsBreakdown from "../components/sections/SecretsBreakdown";
 import SecureStorePageLayout from "../components/layout/SecureStorePageLayout";
 
 import { getUsers, didUserActivateSession } from "../services/api/users";
-import { decryptSecretsWithPrivateKeyFile } from "../services/crypto/rsaFunctions";
 import { getSecretsSharedWithMe, shareSecrets } from "../services/api/secrets";
+import { decryptSecretsWithPrivateKeyFile } from "../services/crypto/rsaFunctions";
 
 const Dashboard = (props) => {
   const [users, setUsers] = React.useState([]);
@@ -38,7 +38,7 @@ const Dashboard = (props) => {
       });
 
       getUsers().then((users) => {
-        setUsers(users?.map(user => user.user_email));
+        setUsers(users?.map((user) => user.user_email));
       });
       setActiveUser(activeUser);
       setLoading(false);
@@ -57,7 +57,12 @@ const Dashboard = (props) => {
 
   const sendSecrets = (e) => {
     shareSecrets(secretsReadyToShare).then((response) => {
-      setSecretsReadyToShare([]);
+      if (response?.length > 0) {
+        getSecretsSharedWithMe().then((secrets) => {
+          setSecrets(secrets);
+        });
+        setSecretsReadyToShare([]);
+      }
     });
   };
 
@@ -107,6 +112,14 @@ const Dashboard = (props) => {
                       { text: "Secret Value", mapping: "secret", obfuscated: !decryptedSecrets?.length },
                       { text: "Timestamp", mapping: "created_at" },
                       { text: "Sender Email", mapping: "sender_email" },
+                    ]}
+                    toolbarButtons={[
+                      {
+                        icon: "VisibilityOff",
+                        ariaLabel: "Stop showing secrets",
+                        disabled: !decryptedSecrets?.length,
+                        onClick: () => setDecryptedSecrets([]),
+                      },
                     ]}
                     tableContent={decryptedSecrets?.length ? decryptedSecrets : secrets}
                     title="Secrets Shared With Me"
