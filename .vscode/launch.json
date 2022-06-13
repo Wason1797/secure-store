@@ -11,11 +11,15 @@
                 "GOOGLE_CLIENT_ID": "",
                 "GOOGLE_CLIENT_SECRET": "",
                 "SESSION_SECRET": "",
+                "SERVER_SECRET": "",
+                "SERVER_SALT": "",
                 "SECURE_STORE_UI_URL": "",
                 "AWS_ACCESS_KEY_ID": "",
                 "AWS_SECRET_ACCESS_KEY": "",
                 "AWS_DYNAMODB_REGION": "",
-                "S3_BUCKET_NAME": ""
+                "S3_BUCKET_NAME": "",
+                "AWS_ENDPOINT": "",
+                "MEMORY_DB_URL": ""
             },
             "type": "python",
             "request": "launch",

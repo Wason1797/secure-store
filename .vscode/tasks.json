@@ -12,11 +12,15 @@
                     "GOOGLE_CLIENT_ID": "",
                     "GOOGLE_CLIENT_SECRET": "",
                     "SESSION_SECRET": "",
+                    "SERVER_SECRET": "",
+                    "SERVER_SALT": "",
                     "SECURE_STORE_UI_URL": "",
                     "AWS_ACCESS_KEY_ID": "",
                     "AWS_SECRET_ACCESS_KEY": "",
                     "AWS_DYNAMODB_REGION": "",
-                    "S3_BUCKET_NAME": ""
+                    "S3_BUCKET_NAME": "",
+                    "AWS_ENDPOINT": "",
+                    "MEMORY_DB_URL": ""
                 },
             },
             "windows": {
@@ -30,12 +34,15 @@
                         "GOOGLE_CLIENT_ID": "",
                         "GOOGLE_CLIENT_SECRET": "",
                         "SESSION_SECRET": "",
+                        "SERVER_SECRET": "",
+                        "SERVER_SALT": "",
                         "SECURE_STORE_UI_URL": "",
-                        "AWS_ENDPOINT": "",
                         "AWS_ACCESS_KEY_ID": "",
                         "AWS_SECRET_ACCESS_KEY": "",
                         "AWS_DYNAMODB_REGION": "",
-                        "S3_BUCKET_NAME": ""
+                        "S3_BUCKET_NAME": "",
+                        "AWS_ENDPOINT": "",
+                        "MEMORY_DB_URL": ""
                     }
                 }
             },
@@ -115,7 +122,7 @@
             },
             "command": [
                 "source ${workspaceFolder}/infrastructure/.tflocal/bin/activate",
-                "&& cd infrastructure && tflocal plan && tflocal apply -var=\"PUBLIC_KEY_BUCKET_NAME=${input:bucketName}\""
+                "&& cd infrastructure && tflocal plan && tflocal apply -auto-approve -var=\"PUBLIC_KEY_BUCKET_NAME=${input:bucketName}\""
             ],
             "group": "build",
             "presentation": {
@@ -128,8 +135,10 @@
             "detail": "Applies a atch file containing sensitive secrets to the tasks file",
             "type": "shell",
             "command": [
-                "git apply patches/secrets.patch",
-                "&& git update-index --skip-worktree .vscode/tasks.json"
+                "git apply patches/task_secrets.patch",
+                "git apply patches/launch_secrets.patch",
+                "&& git update-index --skip-worktree .vscode/tasks.json",
+                "&& git update-index --skip-worktree .vscode/launch.json",
             ],
             "group": "build",
             "presentation": {
