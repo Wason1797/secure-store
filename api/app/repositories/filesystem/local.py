@@ -1,5 +1,5 @@
 from math import pow
-from typing import Optional
+from typing import List, Optional
 
 import aiofiles
 import aiofiles.os
@@ -54,3 +54,11 @@ class LocalFileManager:
                 await aiofiles.os.remove(path)
             except Exception:
                 print(f'Unable to clean file {path}')
+
+    @staticmethod
+    async def create_folders(folders: List[str]):
+        for folder in folders:
+            try:
+                await aiofiles.os.makedirs(folder, exist_ok=True)
+            except OSError as error:
+                print(error)  # FIXME Use a propper logger
