@@ -131,8 +131,8 @@
             }
         },
         {
-            "label": "Patch Tasks",
-            "detail": "Applies a atch file containing sensitive secrets to the tasks file",
+            "label": "Patch Tasks And Launch",
+            "detail": "Applies a atch file containing sensitive secrets to the tasks and launch file",
             "type": "shell",
             "command": [
                 "git apply patches/task_secrets.patch",
