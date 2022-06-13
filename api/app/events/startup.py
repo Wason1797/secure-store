@@ -16,13 +16,18 @@ class StartupEvents:
     def init_fernet_encryption(fernet):
         fernet.init_ecryption_manager(EnvManager.SERVER_SECRET, EnvManager.SERVER_SALT)
 
+    @staticmethod
+    async def init_folders(local_file_manager):
+        await local_file_manager.create_folders([EnvManager.TEMP_FOLDER])
+
 
 class StartupEventManager:
 
     dependencies: Dict[tuple, Callable] = {
         ('app.repositories.database.connectors', 'DynamoDBConnector'): StartupEvents.init_db_connector,
         ('app.repositories.database.connectors', 'RedisConnector'): StartupEvents.init_db_connector,
-        ('app.crypto.fernet_functions', 'FernetEncryption'): StartupEvents.init_fernet_encryption
+        ('app.crypto.fernet_functions', 'FernetEncryption'): StartupEvents.init_fernet_encryption,
+        ('app.repositories.filesystem', 'LocalFileManager'): StartupEvents.init_folders,
     }
 
     @staticmethod
