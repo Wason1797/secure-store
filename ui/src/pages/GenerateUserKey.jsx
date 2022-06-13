@@ -10,6 +10,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { ThemeProvider } from "@mui/material/styles";
 
 import LoadingSection from "../components/sections/LoadingSection";
+import HiddenAutoDownload from "../components/controls/HiddenAutoDownload";
 import SecureStorePageLayout from "../components/layout/SecureStorePageLayout";
 
 import { uploadPublicKey } from "../services/api/publicKey";
@@ -39,23 +40,6 @@ const GenerateUserKey = (props) => {
       setLoading(false);
     });
   }, [navigate]);
-
-  const pubKeyDownloadElementRef = React.useRef();
-  const privKeyDownloadElementRef = React.useRef();
-
-  React.useEffect(() => {
-    if (!rsaPublicKeyDownloadUrl) return;
-    pubKeyDownloadElementRef.current.click();
-    URL.revokeObjectURL(rsaPublicKeyDownloadUrl);
-    setRsaPublicKeyDonwloadUrl(null);
-  }, [rsaPublicKeyDownloadUrl]);
-
-  React.useEffect(() => {
-    if (!rsaPrivateKeyDonwloadUrl) return;
-    privKeyDownloadElementRef.current.click();
-    URL.revokeObjectURL(rsaPrivateKeyDonwloadUrl);
-    setRsaPrivateKeyDonwloadUrl(null);
-  }, [rsaPrivateKeyDonwloadUrl]);
 
   return (
     <ThemeProvider theme={props.mdTheme}>
@@ -106,23 +90,16 @@ const GenerateUserKey = (props) => {
                     >
                       Generate Key Pair
                     </LoadingButton>
-                    <a
-                      style={{ display: "none" }}
-                      download="privateKey.p8"
-                      href={rsaPrivateKeyDonwloadUrl}
-                      ref={privKeyDownloadElementRef}
-                    >
-                      download
-                    </a>
-                    <a
-                      style={{ display: "none" }}
-                      className="hidden"
-                      download="publicKey.pub"
-                      href={rsaPublicKeyDownloadUrl}
-                      ref={pubKeyDownloadElementRef}
-                    >
-                      download
-                    </a>
+                    <HiddenAutoDownload
+                      downloadName="privateKey.p8"
+                      downloadUrl={rsaPrivateKeyDonwloadUrl}
+                      onCleanup={() => setRsaPrivateKeyDonwloadUrl(null)}
+                    />
+                    <HiddenAutoDownload
+                      downloadName="publicKey.pub"
+                      downloadUrl={rsaPublicKeyDownloadUrl}
+                      onCleanup={() => setRsaPublicKeyDonwloadUrl(null)}
+                    />
                   </Grid>
                   <Grid item>
                     <Button
