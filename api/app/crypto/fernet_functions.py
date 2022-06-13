@@ -32,7 +32,7 @@ class FernetEncryption:
         return cyphertext if raw else cyphertext.hex()
 
     @classmethod
-    def decrypt(cls, cyphertext: Union[bytes, str], encoding: str = 'UTF-8', raw: bool = False):
+    def decrypt(cls, cyphertext: Union[bytes, str], raw: bool = False):
         cyphertext = cyphertext if isinstance(cyphertext, bytes) else bytes.fromhex(cyphertext)
         message = cls.manager.decrypt(cyphertext)
-        return message if raw else message.decode(encoding=encoding)
+        return message if raw else message.hex()
