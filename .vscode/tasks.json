@@ -136,7 +136,7 @@
             "type": "shell",
             "command": [
                 "git apply patches/task_secrets.patch",
-                "git apply patches/launch_secrets.patch",
+                "&& git apply patches/launch_secrets.patch",
                 "&& git update-index --skip-worktree .vscode/tasks.json",
                 "&& git update-index --skip-worktree .vscode/launch.json",
             ],
