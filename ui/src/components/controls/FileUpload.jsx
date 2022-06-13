@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import { withStyles } from "@material-ui/core";
 
@@ -97,18 +98,18 @@ const FileUpload = (props) => {
             </Box>
           ) : null}
         </Grid>
-        <Grid item xs={3}>
-          <Typography
-            variant="subtitle2"
-            className={`upload-message ${props.hasUploadError ? "error" : ""}`}
-            color="error"
-          >
-            {props.errorMessage}
-          </Typography>
-        </Grid>
       </Grid>
     </Grid>
   );
+};
+
+FileUpload.propTypes = {
+  selectFile: PropTypes.func.isRequired,
+  selectFileLabel: PropTypes.string,
+  selectedFile: PropTypes.objectOf(File),
+  onSecondaryAction: PropTypes.func,
+  uploadButtonLabel: PropTypes.string,
+  reportsProgress: PropTypes.bool,
 };
 
 export default FileUpload;
