@@ -21,19 +21,21 @@ class SecretManager(BaseManager):
             yield {k: data[k] for k in islice(it, chunks)}
 
     @classmethod
-    async def share_secrets(cls, db, sender_email: str, sender_sub: str, recipient_list: list, secrets: dict, encryption_manager: object,
-                            object_storage: object):
+    async def share_secrets(cls, db, sender_email: str, sender_sub: str, recipient_list: list, shared_key: str, encrypted_secrets: dict,
+                            rsa_encryption_manager: object, aes_encryption_manager: object, object_storage: object):
 
-        secret_chunks = list(cls.split_dict(secrets))
+        decrypted_secrets = {key: aes_encryption_manager.decrypt(shared_key, value.iv, value.secret)
+                             for key, value in encrypted_secrets.items()}
+        secret_chunks = list(cls.split_dict(decrypted_secrets))
         secrets = []
         paths_to_clean = []
 
         for user in recipient_list:
             public_key_path = await object_storage.download_object(user.pub_key_path, to_temp_folder=True)
-            public_key = await encryption_manager.read_pub_key(public_key_path)
+            public_key = await rsa_encryption_manager.read_pub_key(public_key_path)
             paths_to_clean.append(public_key_path)
             for secret_chunk in secret_chunks:
-                encrypted_value = encryption_manager.encrypt_with_pub_key(json.dumps(secret_chunk), public_key)
+                encrypted_value = rsa_encryption_manager.encrypt_with_pub_key(json.dumps(secret_chunk), public_key)
                 secrets.append({
                     'recipient_sub': user.user_sub,
                     'recipient_email': user.user_email,
