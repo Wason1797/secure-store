@@ -1,14 +1,16 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { styled } from "@mui/material/styles";
-import MuiAppBar from "@mui/material/AppBar";
+
+import Badge from "@mui/material/Badge";
+import Avatar from "@mui/material/Avatar";
 import Toolbar from "@mui/material/Toolbar";
+import MuiAppBar from "@mui/material/AppBar";
+import { styled } from "@mui/material/styles";
+import MenuIcon from "@mui/icons-material/Menu";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import Avatar from "@mui/material/Avatar";
-import Badge from "@mui/material/Badge";
-import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+
 import TooltipMenu from "./TooltipMenu";
 
 const StyledAppBarContainer = (drawerWidth) =>
