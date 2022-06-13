@@ -13,8 +13,8 @@ import SecretsBreakdown from "../components/sections/SecretsBreakdown";
 import SecureStorePageLayout from "../components/layout/SecureStorePageLayout";
 
 import { getUsers, didUserActivateSession } from "../services/api/users";
-import { getSecretsSharedWithMe, shareSecrets } from "../services/api/secrets";
 import { decryptSecretsWithPrivateKeyFile } from "../services/crypto/rsaFunctions";
+import { getSecretsSharedWithMe, shareSecrets, performKeyAgreement } from "../services/api/secrets";
 
 const Dashboard = (props) => {
   const [users, setUsers] = React.useState([]);
@@ -56,7 +56,12 @@ const Dashboard = (props) => {
   };
 
   const sendSecrets = (e) => {
-    shareSecrets(secretsReadyToShare).then((response) => {
+    const secureSecretSharing = async () => {
+      const sharedSecret = await performKeyAgreement();
+      return shareSecrets(secretsReadyToShare, sharedSecret);
+    };
+
+    secureSecretSharing().then((response) => {
       if (response?.length > 0) {
         getSecretsSharedWithMe().then((secrets) => {
           setSecrets(secrets);
