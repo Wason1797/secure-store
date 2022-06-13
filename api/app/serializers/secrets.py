@@ -1,11 +1,16 @@
-from typing import List
+from typing import List, Dict
 from pydantic import BaseModel
 from pydantic.networks import EmailStr
 
 
+class SecretWithIv(BaseModel):
+    secret: str
+    iv: str
+
+
 class ShareSecretsPayload(BaseModel):
     users: List[EmailStr]
-    secrets: dict
+    secrets: Dict[str, SecretWithIv]
 
 
 class SecretBase(BaseModel):
