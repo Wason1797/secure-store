@@ -22,7 +22,7 @@ class SecretManager(BaseManager):
 
     @classmethod
     async def share_secrets(cls, db, sender_email: str, sender_sub: str, recipient_list: list, shared_key: str, encrypted_secrets: dict,
-                            rsa_encryption_manager: object, aes_encryption_manager: object, object_storage: object):
+                            rsa_encryption_manager: object, aes_encryption_manager: object, object_storage: tuple):
 
         decrypted_secrets = {key: aes_encryption_manager.decrypt(shared_key, value.iv, value.secret)
                              for key, value in encrypted_secrets.items()}
@@ -30,8 +30,10 @@ class SecretManager(BaseManager):
         secrets = []
         paths_to_clean = []
 
+        obj_storage_manager, obj_storage_session = object_storage
+
         for user in recipient_list:
-            public_key_path = await object_storage.download_object(user.pub_key_path, to_temp_folder=True)
+            public_key_path = await obj_storage_manager.download_object(obj_storage_session, user.pub_key_path, to_temp_folder=True)
             public_key = await rsa_encryption_manager.read_pub_key(public_key_path)
             paths_to_clean.append(public_key_path)
             for secret_chunk in secret_chunks:

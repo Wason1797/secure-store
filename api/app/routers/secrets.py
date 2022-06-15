@@ -3,7 +3,7 @@ from typing import List, Optional
 from app.crypto import (AESEncryption, ECDHExchange, FernetEncryption,
                         RSAEncryption)
 from app.repositories.database.connectors import (DynamoDBConnector,
-                                                  RedisConnector)
+                                                  RedisConnector, S3Connector)
 from app.repositories.database.managers import (CachedKeyManager,
                                                 SecretManager, UserManager)
 from app.repositories.filesystem.local import LocalFileManager
@@ -26,7 +26,7 @@ async def get_secrets_shared_with_current_user(user: Optional[dict] = Depends(ge
 
 @router.post('/share', response_model=List[SecretBasicSerializer])
 async def share_secrets(background_tasks: BackgroundTasks, payload: ShareSecretsPayload, db=Depends(DynamoDBConnector.get_db),
-                        cache=Depends(RedisConnector.get_db), user: Optional[dict] = Depends(get_user)):
+                        cache=Depends(RedisConnector.get_db), s3=Depends(S3Connector.get_storage), user: Optional[dict] = Depends(get_user)):
 
     if (not (shared_key := await CachedKeyManager.get_key_for_user(cache, user.get('sub'), FernetEncryption.decrypt))):
         raise HTTPException(status_code=409, detail='Key Agreement is required prior to sharing secrets')
@@ -36,7 +36,8 @@ async def share_secrets(background_tasks: BackgroundTasks, payload: ShareSecrets
     users_to_share = [user for user in current_users if user.user_email in user_emails_to_share]
 
     result, paths_to_clean = await SecretManager.share_secrets(db, user.get('email'), user.get('sub'), users_to_share, shared_key.derived_key,
-                                                               payload.secrets, RSAEncryption, AESEncryption, S3Manager)
+                                                               payload.secrets, RSAEncryption, AESEncryption, (S3Manager, s3))
+
     background_tasks.add_task(LocalFileManager.clean_files, paths_to_clean)
     await CachedKeyManager.delete_key_for_user(cache, user.get('sub'))
 
