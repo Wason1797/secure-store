@@ -1,6 +1,6 @@
 from typing import Optional
 
-from app.repositories.database.connectors import DynamoDBConnector
+from app.repositories.database.connectors import DynamoDBConnector, S3Connector
 from app.repositories.database.managers import UserManager
 from app.repositories.filesystem.local import LocalFileManager
 from app.repositories.object_storage.s3 import S3Manager
@@ -13,10 +13,10 @@ router = APIRouter()
 
 @router.post('/', response_model=UserSerializer)
 async def upload_public_key(background_tasks: BackgroundTasks, user: Optional[dict] = Depends(get_user),
-                            db=Depends(DynamoDBConnector.get_db), public_key: UploadFile = File(...)):
+                            db=Depends(DynamoDBConnector.get_db), s3=Depends(S3Connector.get_storage), public_key: UploadFile = File(...)):
     public_key_local_path = await LocalFileManager.download_file(public_key, 'Public Key', allowed_extensions={'pub'})
     # Upload to s3
-    s3_public_key_path = await S3Manager.upload_object(public_key_local_path)
+    s3_public_key_path = await S3Manager.upload_object(s3, public_key_local_path)
     # Clean temp files
     background_tasks.add_task(LocalFileManager.clean_files, (public_key_local_path,))
 
