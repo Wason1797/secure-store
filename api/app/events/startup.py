@@ -20,12 +20,17 @@ class StartupEvents:
     async def init_folders(local_file_manager):
         await local_file_manager.create_folders([EnvManager.TEMP_FOLDER])
 
+    @staticmethod
+    def init_s3_storage(s3_manager):
+        s3_manager.init_storage()
+
 
 class StartupEventManager:
 
     dependencies: Dict[tuple, Callable] = {
         ('app.repositories.database.connectors', 'DynamoDBConnector'): StartupEvents.init_db_connector,
         ('app.repositories.database.connectors', 'RedisConnector'): StartupEvents.init_db_connector,
+        ('app.repositories.database.connectors', 'S3Connector'): StartupEvents.init_s3_storage,
         ('app.crypto.fernet_functions', 'FernetEncryption'): StartupEvents.init_fernet_encryption,
         ('app.repositories.filesystem', 'LocalFileManager'): StartupEvents.init_folders,
     }
