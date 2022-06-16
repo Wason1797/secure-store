@@ -1,9 +1,10 @@
 from typing import Optional
 
-from app.repositories.database.connectors import DynamoDBConnector, S3Connector
+from app.repositories.database.connectors import DynamoDBConnector
 from app.repositories.database.managers import UserManager
-from app.repositories.filesystem.local import LocalFileManager
-from app.repositories.object_storage.s3 import S3Manager
+from app.repositories.filesystem import LocalFileManager
+from app.repositories.object_storage.connectors import S3Connector
+from app.repositories.object_storage.managers import S3Manager
 from app.security.validators import get_user
 from app.serializers.user import UserFull as UserSerializer
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile

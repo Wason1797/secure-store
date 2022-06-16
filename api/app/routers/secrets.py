@@ -3,11 +3,12 @@ from typing import List, Optional
 from app.crypto import (AESEncryption, ECDHExchange, FernetEncryption,
                         RSAEncryption)
 from app.repositories.database.connectors import (DynamoDBConnector,
-                                                  RedisConnector, S3Connector)
+                                                  RedisConnector)
 from app.repositories.database.managers import (CachedKeyManager,
                                                 SecretManager, UserManager)
-from app.repositories.filesystem.local import LocalFileManager
-from app.repositories.object_storage.s3 import S3Manager
+from app.repositories.filesystem import LocalFileManager
+from app.repositories.object_storage.connectors import S3Connector
+from app.repositories.object_storage.managers import S3Manager
 from app.security.validators import get_user
 from app.serializers.secrets import KeyAgreementPayload, KeyAgreementResponse
 from app.serializers.secrets import SecretBase as SecretBasicSerializer
