@@ -38,10 +38,10 @@ async def test_upload_object(s3_object_path):
     assert s3_object_path
 
 
-@pytest.fixture
-async def upload_s3_object_with_rename(s3_storage_session,  test_file):
+@pytest.mark.anyio
+async def test_upload_object_with_rename(s3_storage_session,  test_file):
     new_name = 'test_file_updated.pub'
-    upload_path = await S3Manager.upload_object(s3_storage_session(), test_file, up_filename=new_name)
+    upload_path = await S3Manager.upload_object(s3_storage_session, test_file, up_filename=new_name)
     assert new_name in upload_path
 
 
