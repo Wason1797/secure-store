@@ -115,6 +115,7 @@ celerybeat.pid
 .env
 .venv
 .localStackVenv
+testingvenv/
 env/
 venv/
 ENV/
