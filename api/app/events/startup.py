@@ -30,7 +30,7 @@ class StartupEventManager:
     dependencies: Dict[tuple, Callable] = {
         ('app.repositories.database.connectors', 'DynamoDBConnector'): StartupEvents.init_db_connector,
         ('app.repositories.database.connectors', 'RedisConnector'): StartupEvents.init_db_connector,
-        ('app.repositories.database.connectors', 'S3Connector'): StartupEvents.init_s3_storage,
+        ('app.repositories.object_storage.connectors', 'S3Connector'): StartupEvents.init_s3_storage,
         ('app.crypto.fernet_functions', 'FernetEncryption'): StartupEvents.init_fernet_encryption,
         ('app.repositories.filesystem', 'LocalFileManager'): StartupEvents.init_folders,
     }
