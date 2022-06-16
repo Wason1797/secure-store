@@ -27,7 +27,7 @@ def client():
 
 @pytest.fixture(scope='session')
 async def dynamo_db_session():
-    connector = DynamoDBConnector.get_db
+    connector = DynamoDBConnector.get_db()
     yield await connector.__anext__()
     await connector.aclose()
 
