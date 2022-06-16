@@ -3,8 +3,7 @@ from typing import Optional
 
 import aiofiles
 from app.config.env_manager import EnvManager
-
-from ..filesystem.utils import FilenameFunctions
+from app.repositories.filesystem import FilenameFunctions
 
 
 class S3Manager:
@@ -13,11 +12,11 @@ class S3Manager:
     local_temp_folder = EnvManager.TEMP_FOLDER
 
     @classmethod
-    async def download_object(cls, s3, path: str, file_name: Optional[str] = None, bucket_name: str = s3_bucket,
+    async def download_object(cls, s3, s3_path: str, file_name: Optional[str] = None, bucket_name: str = s3_bucket,
                               to_temp_folder: bool = False, chunk_size: int = 69 * 1024):
         temp_filename = FilenameFunctions.timestamp_filename('temp') if not file_name else file_name
         local_filename = temp_filename if not to_temp_folder else f'{cls.local_temp_folder}/{temp_filename}'
-        path_bucket, path_filename, path_location = cls.get_bucket_path_name_split(path)
+        path_bucket, path_filename, path_location = cls.get_bucket_path_name_split(s3_path)
         object_key = path_filename if not path_location else f'{path_location}/{path_filename}'
 
         s3object = await s3.get_object(Bucket=bucket_name or path_bucket, Key=object_key)
@@ -40,7 +39,7 @@ class S3Manager:
         return f's3://{bucket_name}/{s3_filename}'
 
     @classmethod
-    async def download_from_folder(cls, s3, folder_path: str, file_types: list, bucket_name: str = s3_bucket, local_path: str = local_temp_folder):
+    async def download_from_folder(cls, s3, folder_path: str, file_types: list, bucket_name: str = s3_bucket, to_temp_folder: bool = False):
         def filter_file_types(s3_object, types: set):
             return s3_object.key.split('.')[-1] in types
 
@@ -49,8 +48,8 @@ class S3Manager:
         async for item in bucket.objects.filter(Prefix=f'{folder_path}/'):
             if filter_file_types(item, set(file_types)):
                 file_name = item.key.split('/')[-1]
-                await cls.download_object(s3, bucket_name, folder_path, file_name, local_path)
-                file_names.append(f'{local_path}/{file_name}')
+                await cls.download_object(s3,  file_name, to_temp_folder=to_temp_folder)
+                file_names.append(f'{cls.local_temp_folder}/{file_name}' if to_temp_folder else file_name)
 
         return file_names
 
