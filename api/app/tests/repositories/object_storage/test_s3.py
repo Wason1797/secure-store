@@ -9,11 +9,11 @@ def test_file_name_and_contents():
 
 
 @pytest.fixture
-def test_file(test_temp_folder, test_file_name_and_contents):
+async def test_file(test_temp_folder, test_file_name_and_contents):
     file_name, contents = test_file_name_and_contents
     test_file_path = test_temp_folder/file_name
-    with open(test_file_path, 'w') as temp_file:
-        temp_file.write(contents)
+    async with aiofiles.open(test_file_path, 'w') as temp_file:
+        await temp_file.write(contents)
 
     return str(test_file_path.resolve())
 
@@ -42,6 +42,7 @@ async def test_upload_object(s3_object_path):
 async def test_upload_object_with_rename(s3_storage_session,  test_file):
     new_name = 'test_file_updated.pub'
     upload_path = await S3Manager.upload_object(s3_storage_session, test_file, up_filename=new_name)
+    assert upload_path
     assert new_name in upload_path
 
 
