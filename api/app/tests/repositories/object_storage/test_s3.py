@@ -51,5 +51,12 @@ async def test_download_from_folder(s3_storage_session):
     pass
 
 
-def test_get_bucket_path_name_split():
-    pass
+@pytest.mark.parametrize(['s3_path', 'expected'], [
+    ('s3://bucket-name/filename.txt', ('bucket-name', 'filename.txt', '')),
+    ('s3://bucket-name/folder/filename.txt', ('bucket-name', 'filename.txt', 'folder')),
+    ('s3://bucket-name/folder/subfolder/filename.txt', ('bucket-name', 'filename.txt', 'folder/subfolder')),
+    ('c:/bucket-name/folder/subfolder/filename.txt', ('', '', '')),
+])
+def test_get_bucket_path_name_split(s3_path, expected):
+    path_split = S3Manager.get_bucket_path_name_split(s3_path)
+    assert path_split == expected
