@@ -1,0 +1,7 @@
+.env
+localstack-requirements.txt
+testing-requirements.txt
+/temp
+/venv
+/.localStackVenv
+/testingvenv

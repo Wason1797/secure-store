@@ -11,10 +11,10 @@ app = FastAPI(title='secure-store API')
 # Middlewares
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[EnvManager.SECURE_STORE_UI_URL],
+    allow_origins=['*'],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=['*'],
+    allow_headers=['*'],
 )
 app.add_middleware(SessionMiddleware, secret_key=EnvManager.SESSION_SECRET, max_age=10*60*60)
 
