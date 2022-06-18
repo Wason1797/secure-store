@@ -1,18 +1,5 @@
-data "aws_vpc" "default" {
-  default = true
-  count = var.create_module
-}
-
-data "aws_subnets" "all" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default[var.create_module - 1].id]
-  }
-  count = var.create_module
-}
-
 resource "aws_security_group" "redis_sg" {
-  vpc_id = data.aws_vpc.default[var.create_module - 1].id
+  vpc_id = var.vpc_id
   count  = var.create_module
 }
 
@@ -37,8 +24,8 @@ module "redis" {
   snapshot_retention_limit  = 7
   final_snapshot_identifier = "redis-final-snapshot-name"
 
-#   automatic_failover_enabled = true
-#   multi_az_enabled           = true
+  #   automatic_failover_enabled = true
+  #   multi_az_enabled           = true
 
   at_rest_encryption_enabled = true
   transit_encryption_enabled = true
@@ -48,8 +35,8 @@ module "redis" {
   family            = "redis6.x"
   description       = "API Cache"
 
-  subnet_ids = data.aws_subnets.all[var.create_module -1].ids
-  vpc_id     = data.aws_vpc.default[var.create_module - 1].id
+  subnet_ids = [element(var.subnet.*.id, 1)]
+  vpc_id     = var.vpc_id
 
   #   allowed_security_groups = [aws_security_group[var.create_module - 1].redis_sg.id]
 
