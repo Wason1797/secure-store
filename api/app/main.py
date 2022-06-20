@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -18,6 +18,16 @@ app.add_middleware(
 )
 https_only, same_site = (True, 'none') if not EnvManager.is_dev() else (False, 'lax')
 app.add_middleware(SessionMiddleware, secret_key=EnvManager.SESSION_SECRET, max_age=10*60*60, https_only=https_only, same_site=same_site)
+
+
+@app.middleware('http')
+async def to_https_if_prod(request: Request, call_next):
+    response = await call_next(request)
+    location = response.headers.get('location')
+    if location and isinstance(location, str):
+        response.headers['location'] = location.replace('http://', 'https://') if not EnvManager.is_dev() else location
+    return response
+
 
 # Exception handlers
 # @app.exception_handler()
