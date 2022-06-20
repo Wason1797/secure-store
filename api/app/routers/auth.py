@@ -9,6 +9,7 @@ router = APIRouter()
 @router.get('/login')
 async def login(request: Request):
     redirect_uri = request.url_for('google_auth')
+    redirect_uri = redirect_uri.replace('http://', 'https://') if not EnvManager.is_dev() else redirect_uri
     return await oauth_client.google.authorize_redirect(request, redirect_uri)
 
 

@@ -16,7 +16,16 @@ class EnvManager:
     AWS_DYNAMODB_REGION: str = os.environ['AWS_DYNAMODB_REGION']
     TEMP_FOLDER: str = os.getenv('TEMP_FOLDER', './temp')
     MEMORY_DB_URL: str = os.environ['MEMORY_DB_URL']
+    ENV: str = os.getenv('ENV', 'DEV')
 
     @classmethod
     def get(cls, key, default=None):
         return cls.__dict__.get(key, default)
+
+    @classmethod
+    def is_dev(cls):
+        return cls.ENV == 'DEV'
+
+    @classmethod
+    def is_prod(cls):
+        return cls.ENV == 'PROD'
