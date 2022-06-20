@@ -1,1 +1,1 @@
-variable "PUBLIC_KEY_BUCKET_NAME" {}
+variable "public_key_bucket_name" {}

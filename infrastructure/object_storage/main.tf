@@ -1,6 +1,6 @@
 
 resource "aws_s3_bucket" "public-key-bucket" {
-  bucket = var.PUBLIC_KEY_BUCKET_NAME
+  bucket = var.public_key_bucket_name
 
   tags = {
     name        = "public key storage"

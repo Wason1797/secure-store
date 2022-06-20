@@ -1,2 +1,2 @@
-variable "USER_TABLE_NAME" {}
-variable "SECRETS_TABLE_NAME" {}
+variable "user_table_name" {}
+variable "secrets_table_name" {}
