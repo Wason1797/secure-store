@@ -12,10 +12,10 @@ resource "aws_security_group" "secure_store_alb_sg" {
   }
 
   egress {
-    from_port = "0"
-    to_port   = "0"
-    protocol  = "-1"
-    self      = "true"
+    from_port   = "0"
+    to_port     = "0"
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -73,4 +73,9 @@ resource "aws_lb_target_group_attachment" "one" {
   target_group_arn = aws_lb_target_group.secure_store_alb_target_group[count.index].arn
   target_id        = var.ec2_instance_id
   port             = 5000
+}
+
+
+output "alb_sg_group_id" {
+  value = var.create_module == 1 ? aws_security_group.secure_store_alb_sg[0].id : ""
 }
