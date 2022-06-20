@@ -31,10 +31,11 @@ resource "aws_secretsmanager_secret_version" "sversion" {
     "AWS_DYNAMODB_REGION" : "${var.region}",
     "S3_BUCKET_NAME" : "${var.bucket_name}",
     "MEMORY_DB_URL" : "${var.memory_db_url}"
+    "ENV" : "${var.env}"
   })
 }
 
 
 output "secrets_repository" {
-  value = var.create_module ? aws_secretsmanager_secret.secure_store_secrets : ""
+  value = var.create_module == 1 ? aws_secretsmanager_secret.secure_store_secrets[0] : null
 }
