@@ -1,7 +1,29 @@
 resource "aws_security_group" "redis_sg" {
-  vpc_id = var.vpc_id
-  count  = var.create_module
+  count       = var.create_module
+  vpc_id      = var.vpc_id
+  name        = "secure-store-${var.env}-elasticache-sg"
+  description = "SG for elasticache instances"
+
+  ingress {
+    from_port       = "6379"
+    to_port         = "6379"
+    protocol        = "tcp"
+    security_groups = [var.ec2_sg_id]
+  }
+
+  egress {
+    from_port   = "0"
+    to_port     = "0"
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Environment = "${var.env}"
+  }
+
 }
+
 
 resource "random_string" "auth_token" {
   length  = 64
@@ -17,50 +39,28 @@ module "redis" {
   num_cache_clusters = 1
   node_type          = "cache.t2.micro"
 
-  engine_version            = "6.x"
-  port                      = 6379
-  maintenance_window        = "mon:03:00-mon:04:00"
-  snapshot_window           = "04:00-06:00"
-  snapshot_retention_limit  = 7
-  final_snapshot_identifier = "redis-final-snapshot-name"
-
-  #   automatic_failover_enabled = true
-  #   multi_az_enabled           = true
-
+  engine_version             = "6.x"
+  port                       = 6379
   at_rest_encryption_enabled = true
   transit_encryption_enabled = true
   auth_token                 = random_string.auth_token.result
 
   apply_immediately = true
   family            = "redis6.x"
-  description       = "API Cache"
+  description       = "secure store api cache"
 
-  subnet_ids = [element(var.subnet.*.id, 1)]
-  vpc_id     = var.vpc_id
-
-  #   allowed_security_groups = [aws_security_group[var.create_module - 1].redis_sg.id]
-
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-
-  parameter = [
-    {
-      name  = "repl-backlog-size"
-      value = "16384"
-    }
-  ]
-
-  #   log_delivery_configuration = [
-  #     {
-  #       destination_type = "cloudwatch-logs"
-  #       destination      = "aws_cloudwatch_log_group.secure_store.redis"
-  #       log_format       = "json"
-  #       log_type         = "engine-log"
-  #     }
-  #   ]
+  security_group_ids = [aws_security_group.redis_sg[count.index].id]
+  subnet_ids         = [element(var.subnet.*.id, 0)] # change back to 0
+  vpc_id             = var.vpc_id
 
 }
 
 
-output "redis_auth_token" {
+output "auth_token" {
   value = random_string.auth_token.result
+}
+
+
+output "elasticache_url" {
+  value = var.create_module == 1 ? module.redis[0].elasticache_replication_group_primary_endpoint_address : ""
 }
