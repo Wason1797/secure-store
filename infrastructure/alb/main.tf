@@ -5,10 +5,10 @@ resource "aws_security_group" "secure_store_alb_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port = "0"
-    to_port   = "0"
-    protocol  = "-1"
-    self      = true
+    from_port       = "80"
+    to_port         = "80"
+    protocol        = "tcp"
+    security_groups = ["sg-052b007f52d2031cb"]
   }
 
   egress {
