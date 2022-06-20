@@ -16,8 +16,8 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
-https_only = True if not EnvManager.is_dev() else False
-app.add_middleware(SessionMiddleware, secret_key=EnvManager.SESSION_SECRET, max_age=10*60*60, https_only=True)
+https_only, same_site = (True, 'none') if not EnvManager.is_dev() else (False, 'lax')
+app.add_middleware(SessionMiddleware, secret_key=EnvManager.SESSION_SECRET, max_age=10*60*60, https_only=https_only, same_site=same_site)
 
 # Exception handlers
 # @app.exception_handler()
