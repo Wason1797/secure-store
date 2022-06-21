@@ -146,6 +146,8 @@ resource "aws_instance" "secure_store_api_instance" {
 
   user_data = <<EOF
 ${file("${path.module}/install.sh")}
+rm secrets.json
+rm .env
 aws secretsmanager get-secret-value \
   --region ${var.region} \
   --secret-id ${var.secrets_manager.id} \
@@ -160,8 +162,12 @@ aws ecr get-login-password \
   --username AWS \
   --password-stdin \
   ${local.ecr_repo_url}
+docker ps -aq | xargs docker stop | xargs docker rm
+docker container prune -f
+docker image prune -a -f
 docker pull ${local.secure_store_image_name}
 docker run --env-file ./.env -p "5000:5000" -d ${local.secure_store_image_name}
+--//--
 EOF
   tags = {
     Name = "secure store api instance"
