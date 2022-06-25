@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from moto.server import ThreadedMotoServer
 
 from .mocks.oauth_user import mock_get_user
-from .mocks.aws_infra import create_bucket
+from .mocks.aws_infra import create_bucket, create_dynamodb_table
 
 app.dependency_overrides[get_user] = mock_get_user
 
@@ -47,6 +47,8 @@ def test_temp_folder(tmp_path_factory):
 def pytest_configure(config):
     moto_server.start()
     create_bucket(EnvManager.S3_BUCKET_NAME, EnvManager.AWS_ENDPOINT, 'us-east-1')
+    for table, key in (('users', 'user_sub'), ('secrets', 'secret_id')):
+        create_dynamodb_table(table, key, EnvManager.AWS_ENDPOINT, 'us-east-1')
     DynamoDBConnector.init_db()
     S3Connector.init_storage()
 
