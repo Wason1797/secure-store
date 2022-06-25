@@ -13,6 +13,15 @@ python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 deactivate
 
+# Create api testingvenv and install requirements
+echo -e "${green}Create api testingvenv${no_color}\n"
+python3 -m venv testingvenv
+source testingvenv/bin/activate
+echo -e "${green}Install testing requirements${no_color}\n"
+python3 -m pip install --upgrade pip
+pip install -r testing-requirements.txt
+deactivate
+
 # Create localstack virtualenv and install requirements
 echo -e "${green}Create localstack virtualenv${no_color}\n"
 python3 -m venv .localStackVenv
