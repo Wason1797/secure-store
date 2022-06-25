@@ -68,7 +68,8 @@ class BaseManager:
     async def put_item(cls, db, item: Union[dict, object]) -> QueryResult:
         table: TableResource = await db.Table(cls.model.Meta.tablename)
         result = await table.put_item(Item=cls.__parse_model(item))
-        return cls.QueryResult(result, cls.model)
+        items = [item] if 'ConsumedCapacity' in result and 'Items' not in result else []
+        return cls.QueryResult({'Items': items, 'Count': 1}, cls.model)
 
     @classmethod
     async def batch_write(cls, db, items: List[Union[dict, object]]) -> QueryResult:
