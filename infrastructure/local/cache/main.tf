@@ -11,15 +11,13 @@ terraform {
 
 
 resource "docker_image" "redis" {
-  name  = "redis:latest"
-  count = var.create_module
+  name = "redis:latest"
 }
 
 
 resource "docker_container" "redis_local" {
-  count = var.create_module
-  name  = "foo"
-  image = docker_image.redis[var.create_module - 1 ].latest
+  name  = "secure-store-local-redis-cache"
+  image = docker_image.redis.latest
   ports {
     internal = 6379
     external = 6379

@@ -31,13 +31,13 @@ data "aws_ecr_authorization_token" "token" {}
 data "aws_caller_identity" "current" {}
 
 module "db" {
-  source             = "./db"
+  source             = "../common/db"
   user_table_name    = "users"
   secrets_table_name = "secrets"
 }
 
 module "object-storage" {
-  source                 = "./object_storage"
+  source                 = "../common/object_storage"
   public_key_bucket_name = var.PUBLIC_KEY_BUCKET_NAME
 }
 
@@ -85,17 +85,12 @@ module "load_balancer" {
 
 
 module "cache" {
-  source        = "./cache"
+  source        = "./elasticache"
   create_module = (var.ENV == "PROD") ? 1 : 0
   vpc_id        = module.vpc.vpc_id
   subnet        = module.vpc.subnet
   ec2_sg_id     = module.api.ec2_sg_id
   env           = var.ENV
-}
-
-module "local_cache" {
-  source        = "./local_cache"
-  create_module = (var.ENV == "DEV") ? 1 : 0
 }
 
 module "secrets_manager" {
