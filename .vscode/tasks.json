@@ -121,8 +121,8 @@
                 },
             },
             "command": [
-                "source ${workspaceFolder}/infrastructure/.tflocal/bin/activate",
-                "&& cd infrastructure && tflocal plan && tflocal apply -auto-approve -var=\"PUBLIC_KEY_BUCKET_NAME=${input:bucketName}\""
+                "source ${workspaceFolder}/infrastructure/local/.tflocal/bin/activate",
+                "&& cd infrastructure/local && tflocal plan && tflocal apply -auto-approve -var=\"PUBLIC_KEY_BUCKET_NAME=${input:bucketName}\""
             ],
             "group": "build",
             "presentation": {
