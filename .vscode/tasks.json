@@ -145,7 +145,36 @@
                 "reveal": "always",
                 "panel": "dedicated"
             }
-        }
+        },
+        {
+            "label": "Test API",
+            "type": "shell",
+            "options": {
+                "env": {
+                    "OAUTH_CONFIG_URL": "test",
+                    "GOOGLE_CLIENT_ID": "test",
+                    "GOOGLE_CLIENT_SECRET": "test",
+                    "SESSION_SECRET": "secret",
+                    "SERVER_SECRET": "secret",
+                    "SERVER_SALT": "",
+                    "SECURE_STORE_UI_URL": "http://localhost:3000",
+                    "AWS_ACCESS_KEY_ID": "test key",
+                    "AWS_SECRET_ACCESS_KEY": "test key",
+                    "AWS_DYNAMODB_REGION": "us-east-1",
+                    "S3_BUCKET_NAME": "test-public-key-bucket",
+                    "AWS_ENDPOINT": "http://localhost:5050",
+                    "MEMORY_DB_URL": "redis://localhost"
+                },
+            },
+            "command": [
+                "source ${workspaceFolder}/api/testingvenv/bin/activate",
+                "&& cd api && pytest -v"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+            }
+        },
     ],
     "inputs": [
         {
