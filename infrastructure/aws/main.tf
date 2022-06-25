@@ -48,7 +48,6 @@ locals {
 module "vpc" {
   source             = "./vpc"
   env                = var.ENV
-  create_module      = (var.ENV == "PROD") ? 1 : 0
   availability_zones = local.availability_zones
 }
 
@@ -60,7 +59,6 @@ module "api" {
     module.vpc
   ]
   env             = var.ENV
-  create_module   = (var.ENV == "PROD") ? 1 : 0
   vpc_id          = module.vpc.vpc_id
   subnet          = module.vpc.subnet
   region          = var.REGION
@@ -77,7 +75,6 @@ module "load_balancer" {
     module.vpc
   ]
   env             = var.ENV
-  create_module   = (var.ENV == "PROD") ? 1 : 0
   vpc_id          = module.vpc.vpc_id
   subnet          = module.vpc.subnet
   ec2_instance_id = module.api.ec2_instance_id
@@ -86,7 +83,6 @@ module "load_balancer" {
 
 module "cache" {
   source        = "./elasticache"
-  create_module = (var.ENV == "PROD") ? 1 : 0
   vpc_id        = module.vpc.vpc_id
   subnet        = module.vpc.subnet
   ec2_sg_id     = module.api.ec2_sg_id
@@ -95,7 +91,6 @@ module "cache" {
 
 module "secrets_manager" {
   source                = "./secrets"
-  create_module         = (var.ENV == "PROD") ? 1 : 0
   oauth_config_url      = var.OAUTH_CONFIG_URL
   google_client_id      = var.GOOGLE_CLIENT_ID
   google_client_secret  = var.GOOGLE_CLIENT_SECRET

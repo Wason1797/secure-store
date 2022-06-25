@@ -9,18 +9,16 @@ terraform {
 }
 
 resource "aws_ecr_repository" "secure_store_ecr" {
-  count = var.create_module
   name  = "secure_store_ecr_repo"
 }
 
 locals {
-  ecr_repo_url            = aws_ecr_repository.secure_store_ecr[0].repository_url
-  secure_store_image_name = "${aws_ecr_repository.secure_store_ecr[0].repository_url}:latest"
+  ecr_repo_url            = aws_ecr_repository.secure_store_ecr.repository_url
+  secure_store_image_name = "${aws_ecr_repository.secure_store_ecr.repository_url}:latest"
 }
 
 
 resource "docker_registry_image" "api" {
-  count = var.create_module
   name  = local.secure_store_image_name
 
   build {
@@ -31,7 +29,6 @@ resource "docker_registry_image" "api" {
 
 
 resource "aws_security_group" "secure_store_ec2_sg" {
-  count       = var.create_module
   name        = "secure-store${var.env}-ec2-sg"
   description = "Default SG for ec2 instances"
   vpc_id      = var.vpc_id
@@ -109,7 +106,7 @@ resource "aws_iam_role_policy" "secure_store_iam_policy" {
           "ecr:GetRepositoryPolicy",
           "ecr:GetLifecyclePolicy"
         ],
-        "Resource" : "${aws_ecr_repository.secure_store_ecr[0].arn}"
+        "Resource" : "${aws_ecr_repository.secure_store_ecr.arn}"
       },
       {
         "Sid" : "GrantECRAuthAccess",
@@ -131,7 +128,6 @@ resource "aws_iam_instance_profile" "secure_store_instance_profile" {
 }
 
 resource "aws_instance" "secure_store_api_instance" {
-  count = var.create_module
 
   depends_on = [
     docker_registry_image.api
@@ -139,7 +135,7 @@ resource "aws_instance" "secure_store_api_instance" {
 
   ami                    = "ami-0729e439b6769d6ab"
   instance_type          = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.secure_store_ec2_sg[count.index].id]
+  vpc_security_group_ids = [aws_security_group.secure_store_ec2_sg.id]
   subnet_id              = element(var.subnet.*.id, 0) # change back to 1
   key_name               = "test-key"
   iam_instance_profile   = aws_iam_instance_profile.secure_store_instance_profile.name
@@ -178,9 +174,9 @@ EOF
 
 
 output "ec2_instance_id" {
-  value = var.create_module == 1 ? aws_instance.secure_store_api_instance[0].id : ""
+  value = aws_instance.secure_store_api_instance.id
 }
 
 output "ec2_sg_id" {
-  value = var.create_module == 1 ? aws_security_group.secure_store_ec2_sg[0].id : ""
+  value = aws_security_group.secure_store_ec2_sg.id
 }

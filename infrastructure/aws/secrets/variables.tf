@@ -1,4 +1,3 @@
-variable "create_module" {}
 variable "oauth_config_url" {}
 variable "google_client_id" {}
 variable "google_client_secret" {}

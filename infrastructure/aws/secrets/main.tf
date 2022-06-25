@@ -11,13 +11,11 @@ resource "random_string" "server_secret" {
 
 
 resource "aws_secretsmanager_secret" "secure_store_secrets" {
-  count = var.create_module
   name  = "secure_store_secrets"
 }
 
 resource "aws_secretsmanager_secret_version" "sversion" {
-  count     = var.create_module
-  secret_id = aws_secretsmanager_secret.secure_store_secrets[count.index].id
+  secret_id = aws_secretsmanager_secret.secure_store_secrets.id
   secret_string = jsonencode({
     "OAUTH_CONFIG_URL" : "${var.oauth_config_url}",
     "GOOGLE_CLIENT_ID" : "${var.google_client_id}",
@@ -37,5 +35,5 @@ resource "aws_secretsmanager_secret_version" "sversion" {
 
 
 output "secrets_repository" {
-  value = var.create_module == 1 ? aws_secretsmanager_secret.secure_store_secrets[0] : null
+  value = aws_secretsmanager_secret.secure_store_secrets
 }

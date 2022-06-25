@@ -1,5 +1,4 @@
 resource "aws_security_group" "redis_sg" {
-  count       = var.create_module
   vpc_id      = var.vpc_id
   name        = "secure-store-${var.env}-elasticache-sg"
   description = "SG for elasticache instances"
@@ -31,7 +30,6 @@ resource "random_string" "auth_token" {
 }
 
 module "redis" {
-  count   = var.create_module
   source  = "umotif-public/elasticache-redis/aws"
   version = "~> 3.0.0"
 
@@ -49,7 +47,7 @@ module "redis" {
   family            = "redis6.x"
   description       = "secure store api cache"
 
-  security_group_ids = [aws_security_group.redis_sg[count.index].id]
+  security_group_ids = [aws_security_group.redis_sg.id]
   subnet_ids         = [element(var.subnet.*.id, 0)] # change back to 0
   vpc_id             = var.vpc_id
 
@@ -62,5 +60,5 @@ output "auth_token" {
 
 
 output "elasticache_url" {
-  value = var.create_module == 1 ? module.redis[0].elasticache_replication_group_primary_endpoint_address : ""
+  value = module.redis.elasticache_replication_group_primary_endpoint_address
 }

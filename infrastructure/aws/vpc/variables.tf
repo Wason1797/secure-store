@@ -1,4 +1,3 @@
-variable "create_module" {}
 variable "env" {}
 variable "availability_zones" {}
 variable "vpc_cidr" {
