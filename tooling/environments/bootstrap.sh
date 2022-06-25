@@ -25,7 +25,7 @@ deactivate
 # Create terraform local virtualenv and install requirements
 echo -e "${green}Create tflocal virtualenv${no_color}\n"
 cd ..
-cd ./infrastructure
+cd ./infrastructure/local
 python3 -m venv .tflocal
 source .tflocal/bin/activate
 echo -e "${green}Install tflocal requirements${no_color}\n"
@@ -35,6 +35,7 @@ deactivate
 
 # Install ui dependencies
 echo -e "${green}Install ui dependencies${no_color}\n"
+cd ..
 cd ..
 cd ./ui
 npm install
