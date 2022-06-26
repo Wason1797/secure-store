@@ -7,6 +7,8 @@ import { ThemeProvider } from "@mui/material/styles";
 
 import TableView from "../components/controls/TableView";
 import FileUpload from "../components/controls/FileUpload";
+import AlertSection from "../components/sections/AlertSection";
+import { createAlert } from "../components/sections/AlertSection";
 import LoadingSection from "../components/sections/LoadingSection";
 import SecretInfoForm from "../components/sections/SecretInfoForm";
 import SecretsBreakdown from "../components/sections/SecretsBreakdown";
@@ -18,6 +20,7 @@ import { getSecretsSharedWithMe, shareSecrets, performKeyAgreement } from "../se
 
 const Dashboard = (props) => {
   const [users, setUsers] = React.useState([]);
+  const [alerts, setAlerts] = React.useState([]);
   const [secrets, setSecrets] = React.useState([]);
   const [isLoading, setLoading] = React.useState(true);
   const [activeUser, setActiveUser] = React.useState(null);
@@ -62,12 +65,16 @@ const Dashboard = (props) => {
     };
 
     secureSecretSharing().then((response) => {
-      if (response?.length > 0) {
-        getSecretsSharedWithMe().then((secrets) => {
-          setSecrets(secrets);
-        });
-        setSecretsReadyToShare([]);
+      const title = "Secrets Dashboard";
+      if (response?.length <= 0) {
+        setAlerts([createAlert(title, "Error while sharing your secrets", null, "error")]);
+        return;
       }
+      getSecretsSharedWithMe().then((secrets) => {
+        setSecrets(secrets);
+      });
+      setSecretsReadyToShare([]);
+      setAlerts([createAlert(title, "Secrets shared correctly")]);
     });
   };
 
@@ -78,6 +85,9 @@ const Dashboard = (props) => {
       ) : (
         <SecureStorePageLayout avatarImgSrc={activeUser.picture}>
           <Grid container spacing={3}>
+            {alerts.length ? (
+              <AlertSection alerts={alerts} onAlertTimeout={() => setAlerts([])} parentName="secretsDshboard" />
+            ) : null}
             <Grid item xs={12} md={5} lg={4}>
               <Paper
                 sx={{
