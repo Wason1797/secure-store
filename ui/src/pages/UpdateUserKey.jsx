@@ -11,8 +11,8 @@ import { createAlert } from "../components/sections/AlertSection";
 import LoadingSection from "../components/sections/LoadingSection";
 import SecureStorePageLayout from "../components/layout/SecureStorePageLayout";
 
-import { didUserActivateSession } from "../services/api/users";
 import { uploadPublicKey } from "../services/api/publicKey";
+import { didUserActivateSession } from "../services/api/users";
 
 const UpdateUserKey = (props) => {
   const [isLoading, setLoading] = React.useState(true);
@@ -71,7 +71,7 @@ const UpdateUserKey = (props) => {
                       setPublicKeyFile(null);
                     })
                   }
-                  setAlert={() => addAlert("File Upload", "Public Key Stored correctly", null)}
+                  setAlert={(title, message, severity) => addAlert(title, message, null, severity)}
                   reportsProgress
                 />
               </Paper>

@@ -19,6 +19,7 @@ const uploadPublicKey = async (publicKeyFile, onUploadProgress, done) => {
         done();
         return response?.data;
     } catch (error) {
+        done();
         console.log(error);
         return null;
     }

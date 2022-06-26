@@ -74,9 +74,11 @@ const FileUpload = (props) => {
               onClick={() =>
                 props.onSecondaryAction(trackProgress).then((result) => {
                   setProgress(0);
+                  const title = "File Upload";
                   if (result) {
-                    props?.setAlert();
+                    props?.setAlert(title, "Public Key Stored correctly");
                   }
+                  props?.setAlert(title, "Error while storing your public key", "error")
                 }) || (() => {})
               }
             >
