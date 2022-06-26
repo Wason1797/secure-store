@@ -52,8 +52,7 @@ class BaseManager:
         filter_expression = reduce(And, ([Key(key).eq(value) for key, value in filters.items()])) if filters else None
         scan_coro = table.scan(FilterExpression=filter_expression) if filter_expression else table.scan()
         result = await scan_coro
-        items = result.get('Items', [])
-        count = result.get('Count', 0)
+        items, count = result.get('Items', []), result.get('Count', 0)
 
         while result.get('LastEvaluatedKey', False):
             scan_coro = table.scan(ExclusiveStartKey=result.get('LastEvaluatedKey'), FilterExpression=filter_expression) \
@@ -68,8 +67,11 @@ class BaseManager:
     async def put_item(cls, db, item: Union[dict, object]) -> QueryResult:
         table: TableResource = await db.Table(cls.model.Meta.tablename)
         result = await table.put_item(Item=cls.__parse_model(item))
-        items = [item] if 'ConsumedCapacity' in result and 'Items' not in result else []
-        return cls.QueryResult({'Items': items, 'Count': 1}, cls.model)
+        status_code = result.get('ResponseMetadata', {}).get('HTTPStatusCode')
+        items, count = ([item], 1) if status_code == 200 and 'Items' not in result else \
+            (result.get('Items'), result.get('Count')) if 'Items' in result else ([], 0)
+
+        return cls.QueryResult({'Items': items, 'Count': count}, cls.model)
 
     @classmethod
     async def batch_write(cls, db, items: List[Union[dict, object]]) -> QueryResult:
