@@ -71,7 +71,10 @@ const UpdateUserKey = (props) => {
                       setPublicKeyFile(null);
                     })
                   }
-                  setAlert={(title, message, severity) => addAlert(title, message, null, severity)}
+                  setAlert={(result) => {
+                    const message = result ? "Public Key Stored correctly" : "Error while storing your public key";
+                    addAlert("File Upload", message, null, result ? "success" : "error");
+                  }}
                   reportsProgress
                 />
               </Paper>
