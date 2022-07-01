@@ -63,9 +63,9 @@ const GenerateUserKey = (props) => {
                   <Grid item>
                     <Autocomplete
                       disablePortal
-                      defaultValue={"1024"}
+                      defaultValue={"4096"}
                       id="key-length-select"
-                      options={["1024", "2048", "4096"]}
+                      options={["4096", "2048", "1024"]}
                       sx={{ minWidth: 200 }}
                       renderInput={(params) => <TextField {...params} label="Key Length" contentEditable={false} />}
                       onChange={(_e, value) => setKeyLength(parseInt(value, 10))}
