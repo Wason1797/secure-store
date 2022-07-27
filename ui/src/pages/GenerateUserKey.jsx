@@ -20,7 +20,7 @@ import { generateRSAKeyPair } from "../services/crypto/rsaFunctions";
 const GenerateUserKey = (props) => {
   const [isLoading, setLoading] = React.useState(true);
   const [activeUser, setActiveUser] = React.useState(null);
-  const [keyLength, setKeyLength] = React.useState(1024);
+  const [keyLength, setKeyLength] = React.useState(4096);
   const [rsaPublicKey, setRsaPublicKey] = React.useState("");
   const [rsaPublicKeyDownloadUrl, setRsaPublicKeyDonwloadUrl] = React.useState(null);
   const [rsaPrivateKey, setRsaPrivateKey] = React.useState("");
